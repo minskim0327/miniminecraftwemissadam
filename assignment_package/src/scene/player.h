@@ -10,7 +10,7 @@ private:
     const Terrain &mcr_terrain;
 
     void processInputs(InputBundle &inputs);
-    void computePhysics(float dT, const Terrain &terrain);
+    void computePhysics(float dT, const Terrain &terrain, InputBundle &inputs);
 
 public:
     // Readonly public reference to our camera
@@ -23,6 +23,19 @@ public:
     void setCameraWidthHeight(unsigned int w, unsigned int h);
 
     void tick(float dT, InputBundle &input) override;
+
+    // check collision for a body
+    void detectCollision(glm::vec3 *displacement, const Terrain &terrain);
+
+    // check collision for a ray
+    bool gridMarch(glm::vec3 rayOrigin,
+                   glm::vec3 rayDirection,
+                   const Terrain &terrain,
+                   float *out_dist,
+                   glm::ivec3 *out_blockHit);
+
+    // check whether the player is at ground
+    bool isAtGround(const Terrain &terrain, InputBundle &input);
 
     // Player overrides all of Entity's movement
     // functions so that it transforms its camera

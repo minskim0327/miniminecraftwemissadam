@@ -34,7 +34,7 @@ void MyGL::moveMouseToCenter() {
 //    setMouseTracking(false);
     QCursor::setPos(this->mapToGlobal(QPoint(width() / 2, height() / 2)));
     //QCursor::setPos(QPoint(width() / 2, height() / 2));
-    std::cout << QCursor::pos().x() << std::endl;
+    //std::cout << QCursor::pos().x() << std::endl;
 //    setMouseTracking(true);
 }
 
