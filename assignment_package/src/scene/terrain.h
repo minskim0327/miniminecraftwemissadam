@@ -99,4 +99,5 @@ public:
 
 
 
+    void createChunk(int minx, int maxx, int minz, int maxz);
 };

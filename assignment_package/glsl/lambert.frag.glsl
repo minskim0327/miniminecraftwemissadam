@@ -59,7 +59,15 @@ float cubicTriMix(vec3 p) {
 float fbm(vec3 p) {
     float amp = 0.5;
     float freq = 4.0;
+<<<<<<< HEAD
     float sum = 0;
+=======
+<<<<<<< HEAD
+    float sum = 0.0;
+=======
+    float sum = 0.f;
+>>>>>>> master
+>>>>>>> master
     for(int i = 0; i < 8; i++) {
         sum += cubicTriMix(p * freq) * amp;
         amp *= 0.5;

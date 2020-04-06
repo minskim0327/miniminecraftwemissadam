@@ -114,8 +114,9 @@ void Terrain::setBlockAt(int x, int y, int z, BlockType t)
     }
 }
 
+
 Chunk* Terrain::createChunkAt(int x, int z) {
-    uPtr<Chunk> chunk = mkU<Chunk>();
+    uPtr<Chunk> chunk = mkU<Chunk>(mp_context);
     Chunk *cPtr = chunk.get();
     m_chunks[toKey(x, z)] = move(chunk);
     // Set the neighbor pointers of itself and its neighbors
@@ -174,14 +175,27 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
                     }
                 }
             }
+
+            chunk->setWorldPos(x, z);
+            shaderProgram->setModelMatrix(glm::mat4());
+            shaderProgram->drawInterleaved(*chunk);
+        }
+    }
+}
+
+void Terrain::createChunk(int minx, int maxx, int minz, int maxz) {
+    for(int x = minx; x < maxx; x += 16) {
+        for(int z = minz; z < maxz; z += 16) {
+            const uPtr<Chunk> &chunk = getChunkAt(x, z);
+            chunk->setWorldPos(x, z);
+            chunk->create();
         }
     }
 }
 
 void Terrain::CreateTestScene()
 {
-    // TODO: DELETE THIS LINE WHEN YOU DELETE m_geomCube!
-    m_geomCube.create();
+
 
     // Create the Chunks that will
     // store the blocks for our
