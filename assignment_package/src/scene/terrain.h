@@ -88,4 +88,5 @@ public:
     // Initializes the Chunks that store the 64 x 256 x 64 block scene you
     // see when the base code is run.
     void CreateTestScene();
+    void createChunk(int minx, int maxx, int minz, int maxz);
 };

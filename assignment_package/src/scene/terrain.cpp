@@ -114,10 +114,28 @@ void Terrain::setBlockAt(int x, int y, int z, BlockType t)
     }
 }
 
+
 Chunk* Terrain::createChunkAt(int x, int z) {
-    uPtr<Chunk> chunk = mkU<Chunk>();
+    uPtr<Chunk> chunk = mkU<Chunk>(mp_context);
     Chunk *cPtr = chunk.get();
     m_chunks[toKey(x, z)] = move(chunk);
+    // Set the neighbor pointers of itself and its neighbors
+    if(hasChunkAt(x, z + 16)) {
+        auto &chunkNorth = m_chunks[toKey(x, z + 16)];
+        cPtr->linkNeighbor(chunkNorth, ZPOS);
+    }
+    if(hasChunkAt(x, z - 16)) {
+        auto &chunkSouth = m_chunks[toKey(x, z - 16)];
+        cPtr->linkNeighbor(chunkSouth, ZNEG);
+    }
+    if(hasChunkAt(x + 16, z)) {
+        auto &chunkEast = m_chunks[toKey(x + 16, z)];
+        cPtr->linkNeighbor(chunkEast, XPOS);
+    }
+    if(hasChunkAt(x - 16, z)) {
+        auto &chunkWest = m_chunks[toKey(x - 16, z)];
+        cPtr->linkNeighbor(chunkWest, XNEG);
+    }
     return cPtr;
 }
 
@@ -128,40 +146,27 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
     for(int x = minX; x < maxX; x += 16) {
         for(int z = minZ; z < maxZ; z += 16) {
             const uPtr<Chunk> &chunk = getChunkAt(x, z);
-            for(int i = 0; i < 16; ++i) {
-                for(int j = 0; j < 256; ++j) {
-                    for(int k = 0; k < 16; ++k) {
-                        BlockType t = chunk->getBlockAt(i, j, k);
-                        switch(t) {
-                        case GRASS:
-                            shaderProgram->setGeometryColor(glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f);
-                            break;
-                        case DIRT:
-                            shaderProgram->setGeometryColor(glm::vec4(121.f, 85.f, 58.f, 255.f) / 255.f);
-                            break;
-                        case STONE:
-                            shaderProgram->setGeometryColor(glm::vec4(0.5f));
-                            break;
-                        default:
-                            // Other block types are not yet handled, so we default to black
-                            shaderProgram->setGeometryColor(glm::vec4(0.f));
-                            break;
-                        }
-                        if(t != EMPTY) {
-                            shaderProgram->setModelMatrix(glm::translate(glm::mat4(), glm::vec3(i + x, j, k + z)));
-                            shaderProgram->draw(m_geomCube);
-                        }
-                    }
-                }
-            }
+
+            chunk->setWorldPos(x, z);
+            shaderProgram->setModelMatrix(glm::mat4());
+            shaderProgram->drawInterleaved(*chunk);
+        }
+    }
+}
+
+void Terrain::createChunk(int minx, int maxx, int minz, int maxz) {
+    for(int x = minx; x < maxx; x += 16) {
+        for(int z = minz; z < maxz; z += 16) {
+            const uPtr<Chunk> &chunk = getChunkAt(x, z);
+            chunk->setWorldPos(x, z);
+            chunk->create();
         }
     }
 }
 
 void Terrain::CreateTestScene()
 {
-    // TODO: DELETE THIS LINE WHEN YOU DELETE m_geomCube!
-    m_geomCube.create();
+
 
     // Create the Chunks that will
     // store the blocks for our
@@ -198,4 +203,7 @@ void Terrain::CreateTestScene()
     for(int y = 129; y < 140; ++y) {
         setBlockAt(32, y, 32, GRASS);
     }
+
+    //create chunk vbo data
+    createChunk(0, 64, 0, 64);
 }
