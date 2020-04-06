@@ -160,7 +160,8 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
                             shaderProgram->setGeometryColor(glm::vec4(0.5f));
                             break;
                         case SNOW:
-                            shaderProgram->setGeometryColor(glm::vec4(0.f));
+                            shaderProgram->setGeometryColor(glm::vec4(1.f));
+                            break;
                         default:
                             // Other block types are not yet handled, so we default to black
                             shaderProgram->setGeometryColor(glm::vec4(0.f));
@@ -206,13 +207,8 @@ void Terrain::CreateTestScene()
             int mheight = getMountainHeight(x, z);
             int gheight = getGrasslandHeight(x, z);
             float t = perlinNoise(glm::vec2(x / 1024.f, z / 1024.f));
-            int lerp = int((1 - t) * gheight + t * mheight);
-            if (gheight > 255) {
-                std::cout << lerp << "G" << std::endl;
-            }
-            if (mheight > 255) {
-                std::cout << lerp << "M" << std::endl;
-            }
+            int lerp = mheight;
+            //int lerp = int((1 - t) * gheight + t * mheight);
 
 //            if (t > 0) {
 //                std::cout << lerp << "MOUNTAIN" << std::endl;
@@ -224,27 +220,26 @@ void Terrain::CreateTestScene()
 
 
 //            // grassland
-            std::cout << lerp << std::endl;
-            if (t < 0) {
+            if (lerp < 184) {
                 for (int y = 0; y < lerp; ++y) {
                     if (y == lerp - 1) {
-                        std::cout << y << std::endl;
-                        std::cout << "DD" << std::endl;
                         setBlockAt(x, y, z, GRASS);
                     } else if (y <= 128) {
                         //setBlockAt(x, y, z, STONE);
                     } else {
-                        setBlockAt(x, y, z, DIRT);
+                        //setBlockAt(x, y, z, DIRT);
                     }
                 }
             } else { // mountain
                 for (int y = 0; y < lerp; ++y) {
                     if (y == lerp - 1 && lerp > 200) {
                         setBlockAt(x, y, z, SNOW);
+                    } else if (y == lerp - 1) {
+                        setBlockAt(x, y, z, STONE);
                     } else if (y <= 128) {
                         //setBlockAt(x, y, z, STONE);
                     } else {
-                        setBlockAt(x, y, z, STONE);
+                       // setBlockAt(x, y, z, STONE);
                     }
                 }
             }
@@ -262,10 +257,6 @@ float Terrain::perlinNoise(glm::vec2 uv) {
             //std::cout << sf << "SURFLET" << std::endl;
         }
     }
-//    if (surfletSum > 1 || surfletSum < -1) {
-//        std::cout << "ERROR" << std::endl;
-//    }
-//    std::cout << surfletSum << "PERLIN" << std::endl;
     return surfletSum;
 }
 
@@ -280,9 +271,6 @@ float Terrain::surflet(glm::vec2 p, glm::vec2 gridPoint) {
     //std::cout << t2[0] << "T2" << std::endl;
     glm::vec2 t = glm::vec2(1.f) - (6.f * glm::pow(t2, glm::vec2(5.f)) - 15.f * glm::pow(t2, glm::vec2(4.f)) +
             10.f * glm::pow(t2, glm::vec2(3.f)));
-    if (t[0] > 1 || t[0] < -1 || t[1] > 1 || t[1] < -1) {
-        std::cout << t[0] << "T" << std::endl;
-    }
 
     glm::vec2 gradient = random2(gridPoint) * 2.f - glm::vec2(1, 1);
     glm::vec2 diff = p - gridPoint;
@@ -312,14 +300,48 @@ float Terrain::worleyNoise(glm::vec2 uv) {
 
 int Terrain::getGrasslandHeight(int x, int z) {
     float worley = worleyNoise(glm::vec2(x / 64.f, z / 64.f));
+    worley = worley / 3.f;
     return 129 + (worley) * 127 / 2;
 }
 
 int Terrain::getMountainHeight(int x, int z) {
-    float perlin = perlinNoise(glm::vec2(x / 64.f, z / 64.f));
-    int height = 129 + (perlin + 1) * 127 / 2;
-    return 129 + (perlin + 1) * 127 / 2;
+    float perlin = perlinNoise(glm::vec2(x / 16.f, z / 16.f));
+    //std::cout << perlin << std::endl;
+    perlin = fbm(abs(perlin));
+    //std::cout << perlin << "FMB" << std::endl;
+    std::cout << perlin << std::endl;
+    int height = perlin * (127) + 129;
+    return height;
 
 }
+
+float Terrain::noise1D(int x) {
+    x = (x << 13) ^ x;
+    return ((int) 1.0 - (x * (x * x * 15731 + 789221)
+                    + 1376312589) & 0x7fffffff) / 10737741824.0;
+}
+
+float Terrain::fbm(float x) {
+    float total = 0.f;
+    float persistence = 0.5;
+    int octaves = 8;
+    for (int i = 0; i < octaves; i++) {
+        float freq = pow(2.f, i);
+        float amp = pow(persistence, i);
+        total += interpNoise1D(x * freq) * amp;
+    }
+
+    return total;
+}
+
+float Terrain::interpNoise1D(float x) {
+    float intx = glm::floor(x);
+    float fractx = glm::fract(x);
+    float v1 = noise1D(intx);
+    float v2 = noise1D(intx+1);
+    return glm::mix(v1, v2, fractx);
+
+}
+
 
 
