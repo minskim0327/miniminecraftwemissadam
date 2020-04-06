@@ -104,7 +104,6 @@ void MyGL::tick() {
     m_currMSecSinceEpoch = QDateTime::currentMSecsSinceEpoch();
 
     m_player.tick(dT, m_inputs);
-    // moveMouseToCenter();
     update(); // Calls paintGL() as part of a larger QOpenGLWidget pipeline
     sendPlayerDataToGUI(); // Updates the info in the secondary window displaying player data
 }
@@ -176,8 +175,8 @@ void MyGL::mouseMoveEvent(QMouseEvent *e) {
 //                                - e->pos();
 //    std::cout<<"mouse is moving"<<std::endl;
 
-//    float dx = (e->pos().x() - width() * 0.5 + this->pos().x()) / (float) width();
-//    float dy = (e->pos().y() - width() * 0.5 + this->pos().y()) / (float) height();
+    float dx = (e->pos().x() - width() * 0.5 + this->pos().x()) / (float) width();
+    float dy = (e->pos().y() - width() * 0.5 + this->pos().y()) / (float) height();
 //    // how do i convert QPoints into polor coordinates?
 //    // in input bundels, there are variables named mouseX, mouseY -> what do they stnd for?
 ////    m_inputs.mouseX
@@ -188,6 +187,13 @@ void MyGL::mouseMoveEvent(QMouseEvent *e) {
     m_inputs.mouseX = e->x();
     m_inputs.mouseYprev = this->height()/2;
     m_inputs.mouseY = e->y();
+
+//    float dx = e->pos().x() - this->width()/2;
+//    float dy = e->pos().y() - this->height()/2;
+
+    //m_player.rotateOnUpGlobal(-dx * 360 * 0.02f);
+    m_player.rotateOnRightGlobal(-dy * 360 * 0.01f);
+
     moveMouseToCenter();
 //    std::cout<<"mouse is centered"<<std::endl;
 }
@@ -222,7 +228,7 @@ void MyGL::keyPressUpdate(QKeyEvent *e) {
             m_inputs.dPressed = true;
         } else if (e->key() == Qt::Key_A) {
             m_inputs.aPressed = true;
-        } else if (e->key() == Qt::Key_Space && m_inputs.isOnGround) {
+        } else if (e->key() == Qt::Key_Space) {
             m_inputs.spacePressed = true;
         } else if (e->key() == Qt::Key_F) {
             m_inputs.isFlightMode = true;

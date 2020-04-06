@@ -18,6 +18,9 @@ void Player::tick(float dT, InputBundle &input) {
 void Player::processInputs(InputBundle &inputs) {
     float accRate = 1.0f;
 
+    if (isOnGroundLevel(mcr_terrain, inputs)) {
+        std::cout << "isOnGroundLevel" << std::endl;
+    }
     if (inputs.wPressed) {
         //m_velocity = this->m_forward;
         m_acceleration = accRate * this->m_forward;
@@ -33,15 +36,24 @@ void Player::processInputs(InputBundle &inputs) {
         m_acceleration = -accRate * this->m_up;
     } else {
         if (inputs.isFlightMode || inputs.isOnGround) {
+            if (inputs.isFlightMode) {
+                std::cout << "flightmode" << std::endl;
+
+            }
+//            if (inputs.isOnGround) {
+//                std::cout << "is on ground" << std::endl;
+//            }
             m_velocity = glm::vec3(0.f, 0.f, 0.f);
             m_acceleration = glm::vec3(0.f, 0.f, 0.f);
         }
     }
 
+    // prevent multiple jumps while in the mid-air
     if (inputs.spacePressed && inputs.isOnGround) {
         m_velocity = 10.0f * this->m_up;
         m_acceleration = glm::vec3();
         //m_acceleration = -10.0f * this->m_up;
+        inputs.isOnGround = false;
         inputs.spacePressed = false;
     }
 
@@ -61,14 +73,14 @@ void Player::computePhysics(float dT, const Terrain &terrain, InputBundle &input
     if (inputs.isFlightMode) {
         ;//displacement = m_velocity * dT;
     } else {
-//        if (!isAtGround(terrain, inputs)) {
-//            std::cout<<"isAboveGround"<<std::endl;
-//            m_velocity += gravity * dT;
-//            rayDirection = m_velocity * dT;
-//        }
+        if (!isOnGroundLevel(terrain, inputs)) {
+            std::cout<<"isFlying"<<std::endl;
+            m_velocity += gravity * dT;
+            rayDirection = m_velocity * dT;
+        }
         // detect collision (shoot 12 rays)
 
-        detectCollision(&rayDirection, terrain);
+        //detectCollision(&rayDirection, terrain);
         // set displacement accordingly with the collision
 
     }
@@ -100,6 +112,7 @@ void Player::detectCollision(glm::vec3 *rayDirection, const Terrain &terrain) {
     }
 
 }
+
 bool Player::gridMarch(glm::vec3 rayOrigin, glm::vec3 rayDirection,
                        const Terrain &terrain, float *out_dist,
                        glm::ivec3 *out_blockHit) {
@@ -151,14 +164,27 @@ bool Player::gridMarch(glm::vec3 rayOrigin, glm::vec3 rayDirection,
     return false;
 }
 
-bool Player::isAtGround(const Terrain &terrain, InputBundle &input) {
-    glm::vec3 rayOrigin = this->m_position;
-    glm::vec3 rayDirection = glm::vec3(0.f, -0.005f, 0.f);
-    float out_dist = 0.f;
-    glm::ivec3 out_blockHit = glm::ivec3();
+bool Player::isOnGroundLevel(const Terrain &terrain, InputBundle &input) {
+//    glm::vec3 rayOrigin = this->m_position;
+//    glm::vec3 rayDirection = glm::vec3(0.f, -0.005f, 0.f);
+//    float out_dist = 0.f;
+//    glm::ivec3 out_blockHit = glm::ivec3();
 
-    input.isOnGround = gridMarch(rayOrigin, rayDirection, terrain, &out_dist, &out_blockHit);
-    return input.isOnGround;
+//    input.isOnGround = gridMarch(rayOrigin, rayDirection, terrain, &out_dist, &out_blockHit);
+//    return input.isOnGround;
+    glm::vec3 bottomLeftVertex = this->m_position - glm::vec3(0.5f, 0.f, 0.f);
+    for (int x = 0; x <= 1; x++) {
+        for (int z = 0; z >= -1; z--) {
+            if (terrain.getBlockAt(floor(bottomLeftVertex[0]) + x,
+                                   floor(bottomLeftVertex[1]) - 1.f,
+                                   floor(bottomLeftVertex[2]) + z) != EMPTY) {
+                input.isOnGround = true;
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 void Player::moveAlongVector(glm::vec3 dir) {

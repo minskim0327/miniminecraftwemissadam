@@ -35,7 +35,7 @@ public:
                    glm::ivec3 *out_blockHit);
 
     // check whether the player is at ground
-    bool isAtGround(const Terrain &terrain, InputBundle &input);
+    bool isOnGroundLevel(const Terrain &terrain, InputBundle &input);
 
     // Player overrides all of Entity's movement
     // functions so that it transforms its camera
