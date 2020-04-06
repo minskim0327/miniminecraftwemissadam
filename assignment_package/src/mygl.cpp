@@ -71,6 +71,8 @@ void MyGL::initializeGL()
     glBindVertexArray(vao);
 
     m_terrain.CreateTestScene();
+    //m_terrain.updateScene(m_player.mcr_position);
+
 
 }
 
@@ -86,6 +88,7 @@ void MyGL::resizeGL(int w, int h) {
     m_progFlat.setViewProjMatrix(viewproj);
 
     printGLErrorLog();
+
 }
 
 
@@ -96,6 +99,7 @@ void MyGL::resizeGL(int w, int h) {
 void MyGL::tick() {
     update(); // Calls paintGL() as part of a larger QOpenGLWidget pipeline
     sendPlayerDataToGUI(); // Updates the info in the secondary window displaying player data
+    m_terrain.updateScene(m_player.mcr_position, &m_progLambert); //as player moves, send position to create new a chunk (Elaine 1st)
 }
 
 void MyGL::sendPlayerDataToGUI() const {
@@ -132,9 +136,27 @@ void MyGL::paintGL() {
 
 // TODO: Change this so it renders the nine zones of generated
 // terrain that surround the player (refer to Terrain::m_generatedTerrain
-// for more info)
+// for more info) (Elaine 1st)
 void MyGL::renderTerrain() {
-    m_terrain.draw(0, 64, 0, 64, &m_progLambert);
+    int minx = 0;
+    int maxx = 64;
+    int minz = 0;
+    int maxz = 64;
+
+    //depending on the player's position, render terrain including a new chunk
+    if (m_player.mcr_position.x < 0) {
+        minx = m_player.mcr_position.x;
+    }
+    if (m_player.mcr_position.x > 64) {
+        maxx = m_player.mcr_position.x;
+    }
+    if (m_player.mcr_position.z < 0) {
+        minz = m_player.mcr_position.z;
+    }
+    if (m_player.mcr_position.z > 64) {
+        maxz = m_player.mcr_position.z;
+    }
+    m_terrain.draw(minx, maxx, minz, maxx, &m_progLambert);
 }
 
 

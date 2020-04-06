@@ -4,6 +4,7 @@
 #include <QTextStream>
 #include <QDebug>
 #include <stdexcept>
+#include "iostream"
 
 
 ShaderProgram::ShaderProgram(OpenGLContext *context)
@@ -193,7 +194,7 @@ void ShaderProgram::draw(Drawable &d)
     context->printGLErrorLog();
 }
 
-//use this draw function for interleaved vbo data for chunks
+//use this draw function for interleaved vbo data for chunks (Elaine 1st)
 void ShaderProgram::drawInterleaved(Drawable &d) {
     useMe();
 
@@ -208,6 +209,7 @@ void ShaderProgram::drawInterleaved(Drawable &d) {
         context->glVertexAttribPointer(attrNor, 4, GL_FLOAT, false, 3 * sizeof(glm::vec4), (void*)sizeof(glm::vec4));
         context->glEnableVertexAttribArray(attrCol);
         context->glVertexAttribPointer(attrCol, 4, GL_FLOAT, false, 3 * sizeof(glm::vec4), (void*)(2*sizeof(glm::vec4)));
+
     }
     d.bindIdx();
     context->glDrawElements(d.drawMode(), d.elemCount(), GL_UNSIGNED_INT, 0);
@@ -219,6 +221,7 @@ void ShaderProgram::drawInterleaved(Drawable &d) {
     context->printGLErrorLog();
 
 }
+
 
 char* ShaderProgram::textFileRead(const char* fileName) {
     char* text;

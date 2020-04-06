@@ -139,22 +139,110 @@ Chunk* Terrain::createChunkAt(int x, int z) {
     return cPtr;
 }
 
+
+//depending on the player's new position, decide whether a new chunk
+//should be added to the terrain(Elaine 1st)
+void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
+    int xFloor = static_cast<int>(glm::floor(pos.x / 16.f));
+    int zFloor = static_cast<int>(glm::floor(pos.z / 16.f));
+    int x = 16 * xFloor;
+    int z = 16 * zFloor; //x and z represent the chunk's position (lower left corner)
+
+    Chunk* forward = nullptr;
+    Chunk* backward  = nullptr;
+    Chunk* right  = nullptr;
+    Chunk* left  = nullptr;
+    if (!hasChunkAt(x, z + 16)) {
+        forward = createChunkAt(x, z + 16);
+    }
+    if (!hasChunkAt(x, z - 16)) {
+        backward = createChunkAt(x, z - 16);
+    }
+    if (!hasChunkAt(x + 16, z)) {
+        right = createChunkAt(x + 16, z);
+    }
+    if (!hasChunkAt(x - 16, z)) {
+        left = createChunkAt(x - 16, z);
+    }
+
+    if (forward != nullptr) {
+        for(int i = x; i < x + 16; ++i) {
+            for(int j = z + 16; j < z + 32; ++j) {
+                if((i + j) % 2 == 0) {
+                    setBlockAt(i, 128, j, STONE);
+                }
+                else {
+                    setBlockAt(i, 128, j, DIRT);
+                }
+            }
+        }
+        forward->setWorldPos(x, z +16);
+        forward->create();
+    }
+    if (backward != nullptr) {
+        for(int i = x; i < x + 16; ++i) {
+            for(int j = z -16; j < z; ++j) {
+                if((i + j) % 2 == 0) {
+                    setBlockAt(i, 128, j, STONE);
+                }
+                else {
+                    setBlockAt(i, 128, j, DIRT);
+                }
+            }
+        }
+        backward->setWorldPos(x, z -16);
+        backward->create();
+    }
+    if (right != nullptr) {
+        for(int i = x +16; i < x + 32; ++i) {
+            for(int j = z; j < z + 16; ++j) {
+                if((i + j) % 2 == 0) {
+                    setBlockAt(i, 128, j, STONE);
+                }
+                else {
+                    setBlockAt(i, 128, j, DIRT);
+                }
+            }
+        }
+        right->setWorldPos(x +16, z);
+        right->create();
+    }
+    if (left != nullptr) {
+        for(int i = x -16; i < x; ++i) {
+            for(int j = z; j < z + 16; ++j) {
+                if((i + j) % 2 == 0) {
+                    setBlockAt(i, 128, j, STONE);
+                }
+                else {
+                    setBlockAt(i, 128, j, DIRT);
+                }
+            }
+        }
+        left->setWorldPos(x -16, z);
+        left->create();
+    }
+}
+
+
 // TODO: When you make Chunk inherit from Drawable, change this code so
 // it draws each Chunk with the given ShaderProgram, remembering to set the
-// model matrix to the proper X and Z translation!
+// model matrix to the proper X and Z translation!(Elaine 1st)
 void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shaderProgram) {
     for(int x = minX; x < maxX; x += 16) {
         for(int z = minZ; z < maxZ; z += 16) {
-            const uPtr<Chunk> &chunk = getChunkAt(x, z);
+            if (hasChunkAt(x, z)) {
+                const uPtr<Chunk> &chunk = getChunkAt(x, z);
 
-            chunk->setWorldPos(x, z);
-            shaderProgram->setModelMatrix(glm::mat4());
-            shaderProgram->drawInterleaved(*chunk);
+                chunk->setWorldPos(x, z);
+                shaderProgram->setModelMatrix(glm::mat4());
+                shaderProgram->drawInterleaved(*chunk);
+            }
         }
     }
 }
 
-void Terrain::createChunk(int minx, int maxx, int minz, int maxz) {
+//calls chunk.create() to make vbo data (Elaine 1st)
+void Terrain::createChunks(int minx, int maxx, int minz, int maxz) {
     for(int x = minx; x < maxx; x += 16) {
         for(int z = minz; z < maxz; z += 16) {
             const uPtr<Chunk> &chunk = getChunkAt(x, z);
@@ -166,7 +254,6 @@ void Terrain::createChunk(int minx, int maxx, int minz, int maxz) {
 
 void Terrain::CreateTestScene()
 {
-
 
     // Create the Chunks that will
     // store the blocks for our
@@ -204,6 +291,6 @@ void Terrain::CreateTestScene()
         setBlockAt(32, y, 32, GRASS);
     }
 
-    //create chunk vbo data
-    createChunk(0, 64, 0, 64);
+    //create chunk vbo data (Elaine 1st)
+    createChunks(0, 64, 0, 64);
 }

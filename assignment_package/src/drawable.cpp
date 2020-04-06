@@ -65,6 +65,7 @@ void Drawable::generateCol()
     mp_context->glGenBuffers(1, &m_bufCol);
 }
 
+//(Elaine 1st)
 void Drawable::generateAll() {
     mp_context->glGenBuffers(1, &m_bufAll);
     m_allGenerated = true;
@@ -102,6 +103,7 @@ bool Drawable::bindCol()
     return m_colGenerated;
 }
 
+//(Elaine 1st)
 bool Drawable::bindAll() {
     if (m_allGenerated) {
         mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufAll);
