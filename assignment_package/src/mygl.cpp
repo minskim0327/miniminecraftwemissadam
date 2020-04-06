@@ -77,6 +77,7 @@ void MyGL::initializeGL()
     glBindVertexArray(vao);
 
     m_terrain.CreateTestScene();
+
 }
 
 void MyGL::resizeGL(int w, int h) {
@@ -129,6 +130,7 @@ void MyGL::paintGL() {
 
     m_progFlat.setViewProjMatrix(m_player.mcr_camera.getViewProj());
     m_progLambert.setViewProjMatrix(m_player.mcr_camera.getViewProj());
+    m_progLambert.setModelMatrix(glm::mat4());
 
     renderTerrain();
 

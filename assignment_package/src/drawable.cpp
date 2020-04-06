@@ -65,6 +65,11 @@ void Drawable::generateCol()
     mp_context->glGenBuffers(1, &m_bufCol);
 }
 
+void Drawable::generateAll() {
+    mp_context->glGenBuffers(1, &m_bufAll);
+    m_allGenerated = true;
+}
+
 bool Drawable::bindIdx()
 {
     if(m_idxGenerated) {
@@ -95,4 +100,11 @@ bool Drawable::bindCol()
         mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufCol);
     }
     return m_colGenerated;
+}
+
+bool Drawable::bindAll() {
+    if (m_allGenerated) {
+        mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufAll);
+    }
+    return m_allGenerated;
 }
