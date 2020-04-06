@@ -20,3 +20,19 @@ BlockType Chunk::getBlockAt(int x, int y, int z) const {
 void Chunk::setBlockAt(unsigned int x, unsigned int y, unsigned int z, BlockType t) {
     m_blocks.at(x + 16 * y + 16 * 256 * z) = t;
 }
+
+const static std::unordered_map<Direction, Direction, EnumHash> oppositeDirection {
+    {XPOS, XNEG},
+    {XNEG, XPOS},
+    {YPOS, YNEG},
+    {YNEG, YPOS},
+    {ZPOS, ZNEG},
+    {ZNEG, ZPOS}
+};
+
+void Chunk::linkNeighbor(uPtr<Chunk> &neighbor, Direction dir) {
+    if(neighbor != nullptr) {
+        this->m_neighbors[dir] = neighbor.get();
+        neighbor->m_neighbors[oppositeDirection.at(dir)] = this;
+    }
+}

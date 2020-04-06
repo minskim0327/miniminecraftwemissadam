@@ -14,7 +14,7 @@
 // block types, but in the scope of this project we'll never get anywhere near that many.
 enum BlockType : unsigned char
 {
-    EMPTY, GRASS, DIRT, STONE
+    EMPTY, GRASS, DIRT, STONE, SNOW
 };
 
 // The six cardinal directions in 3D space
@@ -52,6 +52,7 @@ private:
 
 public:
     Chunk();
+    void linkNeighbor(uPtr<Chunk>& neighbor, Direction dir);
     BlockType getBlockAt(unsigned int x, unsigned int y, unsigned int z) const;
     BlockType getBlockAt(int x, int y, int z) const;
     void setBlockAt(unsigned int x, unsigned int y, unsigned int z, BlockType t);
