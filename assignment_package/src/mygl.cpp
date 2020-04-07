@@ -149,7 +149,6 @@ void MyGL::paintGL() {
 // terrain that surround the player (refer to Terrain::m_generatedTerrain
 // for more info) (Elaine 1st)
 void MyGL::renderTerrain() {
-<<<<<<< HEAD
     int minx = 0;
     int maxx = 64;
     int minz = 0;
@@ -169,9 +168,6 @@ void MyGL::renderTerrain() {
         maxz = m_player.mcr_position.z;
     }
     m_terrain.draw(minx, maxx, minz, maxx, &m_progLambert);
-=======
-    m_terrain.draw(-96, 96, -96, 96, &m_progLambert);
->>>>>>> detached
 }
 
 // construct an inputbundle in keypress event with appropriate info

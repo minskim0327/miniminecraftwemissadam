@@ -88,13 +88,12 @@ public:
     // Initializes the Chunks that store the 64 x 256 x 64 block scene you
     // see when the base code is run.
     void CreateTestScene();
-<<<<<<< HEAD
     //create chunk vbo
     void createChunks(int minx, int maxx, int minz, int maxz);
     //expand the terrain
     void updateScene(const glm::vec3 pos, ShaderProgram *shaderProgram);
-=======
 
+    //chang
     int getGrasslandHeight(int x, int z);
     int getMountainHeight(int x, int z);
     float perlinNoise(glm::vec2 uv);
@@ -104,5 +103,5 @@ public:
     float fbm(float);
     float noise1D(int);
     float remap(float, float, float, float, float);
->>>>>>> detached
+    void fillBlock(int x, int z);
 };

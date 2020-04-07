@@ -168,12 +168,13 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
     if (forward != nullptr) {
         for(int i = x; i < x + 16; ++i) {
             for(int j = z + 16; j < z + 32; ++j) {
-                if((i + j) % 2 == 0) {
-                    setBlockAt(i, 128, j, STONE);
-                }
-                else {
-                    setBlockAt(i, 128, j, DIRT);
-                }
+//                if((i + j) % 2 == 0) {
+//                    setBlockAt(i, 128, j, STONE);
+//                }
+//                else {
+//                    setBlockAt(i, 128, j, DIRT);
+//                }
+                fillBlock(i, j);
             }
         }
         forward->setWorldPos(x, z +16);
@@ -182,12 +183,13 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
     if (backward != nullptr) {
         for(int i = x; i < x + 16; ++i) {
             for(int j = z -16; j < z; ++j) {
-                if((i + j) % 2 == 0) {
-                    setBlockAt(i, 128, j, STONE);
-                }
-                else {
-                    setBlockAt(i, 128, j, DIRT);
-                }
+//                if((i + j) % 2 == 0) {
+//                    setBlockAt(i, 128, j, STONE);
+//                }
+//                else {
+//                    setBlockAt(i, 128, j, DIRT);
+//                }
+                fillBlock(i, j);
             }
         }
         backward->setWorldPos(x, z -16);
@@ -196,12 +198,7 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
     if (right != nullptr) {
         for(int i = x +16; i < x + 32; ++i) {
             for(int j = z; j < z + 16; ++j) {
-                if((i + j) % 2 == 0) {
-                    setBlockAt(i, 128, j, STONE);
-                }
-                else {
-                    setBlockAt(i, 128, j, DIRT);
-                }
+                fillBlock(pos.x, pos.z);
             }
         }
         right->setWorldPos(x +16, z);
@@ -210,12 +207,7 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
     if (left != nullptr) {
         for(int i = x -16; i < x; ++i) {
             for(int j = z; j < z + 16; ++j) {
-                if((i + j) % 2 == 0) {
-                    setBlockAt(i, 128, j, STONE);
-                }
-                else {
-                    setBlockAt(i, 128, j, DIRT);
-                }
+                fillBlock(pos.x, pos.z);
             }
         }
         left->setWorldPos(x -16, z);
@@ -270,87 +262,59 @@ void Terrain::CreateTestScene()
     // Create the basic terrain floor
     for(int x = 0; x < 64; ++x) {
         for(int z = 0; z < 64; ++z) {
-            if((x + z) % 2 == 0) {
-                setBlockAt(x, 128, z, STONE);
-            }
-            else {
-                setBlockAt(x, 128, z, DIRT);
-            }
+            fillBlock(x, z);
         }
     }
     // Add "walls" for collision testing
-    for(int x = 0; x < 64; ++x) {
-        setBlockAt(x, 129, 0, GRASS);
-        setBlockAt(x, 130, 0, GRASS);
-        setBlockAt(x, 129, 63, GRASS);
-        setBlockAt(0, 130, x, GRASS);
-    }
-    // Add a central column
-    for(int y = 129; y < 140; ++y) {
-        setBlockAt(32, y, 32, GRASS);
-    }
+//    for(int x = 0; x < 64; ++x) {
+//        setBlockAt(x, 129, 0, GRASS);
+//        setBlockAt(x, 130, 0, GRASS);
+//        setBlockAt(x, 129, 63, GRASS);
+//        setBlockAt(0, 130, x, GRASS);
+//    }
+//    // Add a central column
+//    for(int y = 129; y < 140; ++y) {
+//        setBlockAt(32, y, 32, GRASS);
+//    }
 
     //create chunk vbo data (Elaine 1st)
     createChunks(0, 64, 0, 64);
 
-    // // Create the Chunks that will
-    // // store the blocks for our
-    // // initial world space
-    // for(int x = -512; x < 512; x += 16) {
-    //     for(int z = -512; z < 512; z += 16) {
-    //         createChunkAt(x, z);
-    //     }
-    // }
-    // // Tell our existing terrain set that
-    // // the "generated terrain zone" at (0,0)
-    // // now exists.
-    // for (int i = -4; i < 4; ++i) {
-    //     for (int j = -4; j < 4; ++j) {
-    //         m_generatedTerrain.insert(toKey(i, j));
-    //     }
-    // }
+}
 
+void Terrain::fillBlock(int x, int z) {
+    int mheight = getMountainHeight(x, z);
+    int gheight = getGrasslandHeight(x, z);
+    float t = perlinNoise(glm::vec2(x / 256.f, z / 256.f));
+    float remapped = remap(t, -1, 1, 0, 1);
 
-    // // Create the basic terrain floor
-    // for(int x = -512; x < 512; ++x) {
-    //     for(int z = -512; z < 512; ++z) {
-    //         int mheight = getMountainHeight(x, z);
-    //         int gheight = getGrasslandHeight(x, z);
-    //         float t = perlinNoise(glm::vec2(x / 256.f, z / 256.f));
-    //         float remapped = remap(t, -1, 1, 0, 1);
+    remapped = glm::smoothstep(0.4, 0.6, (double) remapped);
 
-    //         remapped = glm::smoothstep(0.4, 0.6, (double) remapped);
-    //         std::cout << remapped << std::endl;
+    int lerp = int((1 - remapped) * gheight + remapped * mheight);
 
-    //         int lerp = int((1 - remapped) * gheight + remapped * mheight);
-    //         std::cout << "MHEIGHT: " << mheight << "GHEIGHT: " << gheight << "LERP: " << lerp << std::endl;
-
-    //         if (remapped < 0.5) {
-    //             for (int y = 0; y < lerp; ++y) {
-    //                 if (y == lerp - 1) {
-    //                     setBlockAt(x, y, z, GRASS);
-    //                 } else if (y <= 128) {
-    //                     //setBlockAt(x, y, z, STONE);
-    //                 } else {
-    //                     //setBlockAt(x, y, z, DIRT);
-    //                 }
-    //             }
-    //         } else { // mountain
-    //             for (int y = 0; y < lerp; ++y) {
-    //                 if (y == lerp - 1 && lerp > 200) {
-    //                     setBlockAt(x, y, z, SNOW);
-    //                 } else if (y == lerp - 1) {
-    //                     setBlockAt(x, y, z, STONE);
-    //                 } else if (y <= 128) {
-    //                     //setBlockAt(x, y, z, STONE);
-    //                 } else {
-    //                    // setBlockAt(x, y, z, STONE);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
+    if (remapped < 0.5) {
+        for (int y = 0; y < lerp; ++y) {
+            if (y == lerp - 1) {
+                setBlockAt(x, y, z, GRASS);
+            } else if (y <= 128) {
+                setBlockAt(x, y, z, STONE);
+            } else {
+                setBlockAt(x, y, z, DIRT);
+            }
+        }
+    } else { // mountain
+        for (int y = 0; y < lerp; ++y) {
+            if (y == lerp - 1 && lerp > 200) {
+                setBlockAt(x, y, z, SNOW);
+            } else if (y == lerp - 1) {
+                setBlockAt(x, y, z, STONE);
+            } else if (y <= 128) {
+                setBlockAt(x, y, z, STONE);
+            } else {
+                setBlockAt(x, y, z, STONE);
+            }
+        }
+    }
 }
 
 float Terrain::perlinNoise(glm::vec2 uv) {
@@ -376,7 +340,6 @@ float Terrain::remap(float val, float from1, float to1, float from2, float to2) 
 
 float Terrain::surflet(glm::vec2 p, glm::vec2 gridPoint) {
     glm::vec2 t2 = glm::abs(p - gridPoint);
-    //std::cout << t2[0] << "T2" << std::endl;
     glm::vec2 t = glm::vec2(1.f) - (6.f * glm::pow(t2, glm::vec2(5.f)) - 15.f * glm::pow(t2, glm::vec2(4.f)) +
             10.f * glm::pow(t2, glm::vec2(3.f)));
     glm::vec2 rand = random2(gridPoint);
@@ -385,9 +348,6 @@ float Terrain::surflet(glm::vec2 p, glm::vec2 gridPoint) {
     glm::vec2 gradient = random2(gridPoint) * 2.f - glm::vec2(1, 1);
     glm::vec2 diff = p - gridPoint;
     float height = glm::dot(diff, gradient);
-   // std::cout << height << "height    " << std::endl;
-    //std::cout << t[0] << "t VAL    " << t[1] << std::endl;
-
     return height * t[0] * t[1];
 
 }
@@ -400,7 +360,6 @@ int Terrain::getGrasslandHeight(int x, int z) {
 
 int Terrain::getMountainHeight(int x, int z) {
     float perlin = perlinNoise(glm::vec2(x / 32.f, z / 32.f));
-    std::cout << perlin << "NOISE" << std::endl;
     perlin = remap(perlin, -1, 1, 0, 1);
 
     perlin = glm::smoothstep(0.25, 0.75, (double) perlin);

@@ -16,7 +16,7 @@ void Player::tick(float dT, InputBundle &input) {
 }
 
 void Player::processInputs(InputBundle &inputs) {
-    float accRate = 1.0f;
+    float accRate = 15.0f;
 
     if (isOnGroundLevel(mcr_terrain, inputs)) {
         std::cout << "isOnGroundLevel" << std::endl;
