@@ -96,6 +96,7 @@ public:
     float interpNoise1D(float);
     float fbm(float);
     float noise1D(int);
+    float remap(float, float, float, float, float);
 
 
 

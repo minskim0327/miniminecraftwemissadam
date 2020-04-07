@@ -206,9 +206,15 @@ void Terrain::CreateTestScene()
         for(int z = -128; z < 128; ++z) {
             int mheight = getMountainHeight(x, z);
             int gheight = getGrasslandHeight(x, z);
-            float t = perlinNoise(glm::vec2(x / 1024.f, z / 1024.f));
-            int lerp = mheight;
-            //int lerp = int((1 - t) * gheight + t * mheight);
+            float t = perlinNoise(glm::vec2(x / 256.f, z / 256.f));
+            float remapped = remap(t, -1, 1, 0, 1);
+
+            remapped = glm::smoothstep(0.4, 0.6, (double) remapped);
+            std::cout << remapped << std::endl;
+
+            int lerp = int((1 - remapped) * gheight + remapped * mheight);
+            std::cout << "MHEIGHT: " << mheight << "GHEIGHT: " << gheight << "LERP: " << lerp << std::endl;
+            //int lerp = mheight;
 
 //            if (t > 0) {
 //                std::cout << lerp << "MOUNTAIN" << std::endl;
@@ -220,7 +226,7 @@ void Terrain::CreateTestScene()
 
 
 //            // grassland
-            if (lerp < 184) {
+            if (remapped < 0.5) {
                 for (int y = 0; y < lerp; ++y) {
                     if (y == lerp - 1) {
                         setBlockAt(x, y, z, GRASS);
@@ -266,12 +272,18 @@ glm::vec2 random2(glm::vec2 p) {
                           glm::dot(p, glm::vec2(269.5, 183.3)))) * 43758.5453f);
 }
 
+float Terrain::remap(float val, float from1, float to1, float from2, float to2) {
+    return (val - from1) / (to1 - from1) * (to2 - from2) + from2;
+}
+
 float Terrain::surflet(glm::vec2 p, glm::vec2 gridPoint) {
     glm::vec2 t2 = glm::abs(p - gridPoint);
     //std::cout << t2[0] << "T2" << std::endl;
     glm::vec2 t = glm::vec2(1.f) - (6.f * glm::pow(t2, glm::vec2(5.f)) - 15.f * glm::pow(t2, glm::vec2(4.f)) +
             10.f * glm::pow(t2, glm::vec2(3.f)));
-
+    glm::vec2 rand = random2(gridPoint);
+    rand[0] = remap(rand[0], 0, 1, -1, 1);
+    rand[1] = remap(rand[1], 0, 1, -1, 1);
     glm::vec2 gradient = random2(gridPoint) * 2.f - glm::vec2(1, 1);
     glm::vec2 diff = p - gridPoint;
     float height = glm::dot(diff, gradient);
@@ -283,6 +295,7 @@ float Terrain::surflet(glm::vec2 p, glm::vec2 gridPoint) {
 }
 
 float Terrain::worleyNoise(glm::vec2 uv) {
+    uv *= 2;
     glm::vec2 uvInt = glm::floor(uv);
     glm::vec2 uvFract = glm::fract(uv);
     float minDist = 1;
@@ -295,21 +308,26 @@ float Terrain::worleyNoise(glm::vec2 uv) {
             minDist = glm::min(minDist, dist);
         }
     }
+    float perlin = perlinNoise(uv);
+    minDist = abs(perlin) * minDist;
     return minDist;
 }
 
 int Terrain::getGrasslandHeight(int x, int z) {
     float worley = worleyNoise(glm::vec2(x / 64.f, z / 64.f));
-    worley = worley / 3.f;
     return 129 + (worley) * 127 / 2;
 }
 
 int Terrain::getMountainHeight(int x, int z) {
-    float perlin = perlinNoise(glm::vec2(x / 16.f, z / 16.f));
+    float perlin = perlinNoise(glm::vec2(x / 32.f, z / 32.f));
+    std::cout << perlin << "NOISE" << std::endl;
+    perlin = remap(perlin, -1, 1, 0, 1);
+
+    perlin = glm::smoothstep(0.25, 0.75, (double) perlin);
+    perlin = pow(perlin, 2);
+    //perlin = abs(perlin);
+    std::cout << perlin << "MOUNTAIN PERLIN" << std::endl;
     //std::cout << perlin << std::endl;
-    perlin = fbm(abs(perlin));
-    //std::cout << perlin << "FMB" << std::endl;
-    std::cout << perlin << std::endl;
     int height = perlin * (127) + 129;
     return height;
 
@@ -323,7 +341,7 @@ float Terrain::noise1D(int x) {
 
 float Terrain::fbm(float x) {
     float total = 0.f;
-    float persistence = 0.5;
+    float persistence = 0.7;
     int octaves = 8;
     for (int i = 0; i < octaves; i++) {
         float freq = pow(2.f, i);
