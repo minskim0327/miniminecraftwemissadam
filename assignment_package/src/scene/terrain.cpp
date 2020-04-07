@@ -186,24 +186,24 @@ void Terrain::CreateTestScene()
     // Create the Chunks that will
     // store the blocks for our
     // initial world space
-    for(int x = -256; x < 256; x += 16) {
-        for(int z = -256; z < 256; z += 16) {
+    for(int x = -512; x < 512; x += 16) {
+        for(int z = -512; z < 512; z += 16) {
             createChunkAt(x, z);
         }
     }
     // Tell our existing terrain set that
     // the "generated terrain zone" at (0,0)
     // now exists.
-    for (int i = -2; i < 2; ++i) {
-        for (int j = -2; j < 2; ++j) {
+    for (int i = -4; i < 4; ++i) {
+        for (int j = -4; j < 4; ++j) {
             m_generatedTerrain.insert(toKey(i, j));
         }
     }
 
 
     // Create the basic terrain floor
-    for(int x = -128; x < 128; ++x) {
-        for(int z = -128; z < 128; ++z) {
+    for(int x = -512; x < 512; ++x) {
+        for(int z = -512; z < 512; ++z) {
             int mheight = getMountainHeight(x, z);
             int gheight = getGrasslandHeight(x, z);
             float t = perlinNoise(glm::vec2(x / 256.f, z / 256.f));
@@ -214,18 +214,7 @@ void Terrain::CreateTestScene()
 
             int lerp = int((1 - remapped) * gheight + remapped * mheight);
             std::cout << "MHEIGHT: " << mheight << "GHEIGHT: " << gheight << "LERP: " << lerp << std::endl;
-            //int lerp = mheight;
 
-//            if (t > 0) {
-//                std::cout << lerp << "MOUNTAIN" << std::endl;
-//                std::cout << t << "T" << std::endl;
-//            } else {
-//                std::cout << lerp << "GRASS" << std::endl;
-//                std::cout << t << "T" << std::endl;
-//            }
-
-
-//            // grassland
             if (remapped < 0.5) {
                 for (int y = 0; y < lerp; ++y) {
                     if (y == lerp - 1) {
@@ -294,6 +283,24 @@ float Terrain::surflet(glm::vec2 p, glm::vec2 gridPoint) {
 
 }
 
+
+int Terrain::getGrasslandHeight(int x, int z) {
+    float worley = worleyNoise(glm::vec2(x / 64.f, z / 64.f));
+    return 129 + (worley) * 127 / 2;
+}
+
+int Terrain::getMountainHeight(int x, int z) {
+    float perlin = perlinNoise(glm::vec2(x / 32.f, z / 32.f));
+    std::cout << perlin << "NOISE" << std::endl;
+    perlin = remap(perlin, -1, 1, 0, 1);
+
+    perlin = glm::smoothstep(0.25, 0.75, (double) perlin);
+    perlin = pow(perlin, 2);
+    int height = perlin * (127) + 129;
+    return height;
+
+}
+
 float Terrain::worleyNoise(glm::vec2 uv) {
     uv *= 2;
     glm::vec2 uvInt = glm::floor(uv);
@@ -311,26 +318,6 @@ float Terrain::worleyNoise(glm::vec2 uv) {
     float perlin = perlinNoise(uv);
     minDist = abs(perlin) * minDist;
     return minDist;
-}
-
-int Terrain::getGrasslandHeight(int x, int z) {
-    float worley = worleyNoise(glm::vec2(x / 64.f, z / 64.f));
-    return 129 + (worley) * 127 / 2;
-}
-
-int Terrain::getMountainHeight(int x, int z) {
-    float perlin = perlinNoise(glm::vec2(x / 32.f, z / 32.f));
-    std::cout << perlin << "NOISE" << std::endl;
-    perlin = remap(perlin, -1, 1, 0, 1);
-
-    perlin = glm::smoothstep(0.25, 0.75, (double) perlin);
-    perlin = pow(perlin, 2);
-    //perlin = abs(perlin);
-    std::cout << perlin << "MOUNTAIN PERLIN" << std::endl;
-    //std::cout << perlin << std::endl;
-    int height = perlin * (127) + 129;
-    return height;
-
 }
 
 float Terrain::noise1D(int x) {
@@ -360,6 +347,7 @@ float Terrain::interpNoise1D(float x) {
     return glm::mix(v1, v2, fractx);
 
 }
+
 
 
 
