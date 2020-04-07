@@ -198,7 +198,7 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
     if (right != nullptr) {
         for(int i = x +16; i < x + 32; ++i) {
             for(int j = z; j < z + 16; ++j) {
-                fillBlock(pos.x, pos.z);
+                fillBlock(i, j);
             }
         }
         right->setWorldPos(x +16, z);
@@ -207,7 +207,7 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
     if (left != nullptr) {
         for(int i = x -16; i < x; ++i) {
             for(int j = z; j < z + 16; ++j) {
-                fillBlock(pos.x, pos.z);
+                fillBlock(i, j);
             }
         }
         left->setWorldPos(x -16, z);
