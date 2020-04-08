@@ -106,6 +106,8 @@ void Terrain::setBlockAt(int x, int y, int z, BlockType t)
                       static_cast<unsigned int>(y),
                       static_cast<unsigned int>(z - chunkOrigin.y),
                       t);
+//        c->destroy();
+//        c->create();
     }
     else {
         throw std::out_of_range("Coordinates " + std::to_string(x) +
@@ -238,6 +240,7 @@ void Terrain::createChunks(int minx, int maxx, int minz, int maxz) {
     for(int x = minx; x < maxx; x += 16) {
         for(int z = minz; z < maxz; z += 16) {
             const uPtr<Chunk> &chunk = getChunkAt(x, z);
+            chunk->destroy();
             chunk->setWorldPos(x, z);
             chunk->create();
         }

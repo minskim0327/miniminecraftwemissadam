@@ -190,40 +190,24 @@ void MyGL::keyReleaseEvent(QKeyEvent *e) {
 }
 
 void MyGL::mouseMoveEvent(QMouseEvent *e) {
-    // handle rotate
-    // QCursor -> position value with x, y
-    // cursor position
-    // glScreenWith
-//    QPoint mouseDisplacement = QPoint(m_player.mcr_camera.mcr_position.x / 2.0f,
-//                                      m_player.mcr_camera.mcr_position.y / 2.0f)
-//                                - e->pos();
-//    std::cout<<"mouse is moving"<<std::endl;
+    // For windows
+    float dx = e->pos().x() - this->width()/2;
+    float dy = e->pos().y() - this->height()/2;
 
-    float dx = (e->pos().x() - width() * 0.5 + this->pos().x()) / (float) width();
-    float dy = (e->pos().y() - width() * 0.5 + this->pos().y()) / (float) height();
-//    // how do i convert QPoints into polor coordinates?
-//    // in input bundels, there are variables named mouseX, mouseY -> what do they stnd for?
-////    m_inputs.mouseX
+    // For mac
 
-//    m_player.rotateOnUpGlobal(-dx * 360.0f * 0.004f);
-//    // mouse should always be at the center (aim)
-    m_inputs.mouseXprev = this->width()/2;
-    m_inputs.mouseX = e->x();
-    m_inputs.mouseYprev = this->height()/2;
-    m_inputs.mouseY = e->y();
-
-//    float dx = e->pos().x() - this->width()/2;
-//    float dy = e->pos().y() - this->height()/2;
-
-    //m_player.rotateOnUpGlobal(-dx * 360 * 0.02f);
-    m_player.rotateOnRightGlobal(-dy * 360 * 0.01f);
+    m_player.rotateOnUpGlobal(-dx * 360 * 0.0002f);
+    m_player.rotateOnRightLocal(-dy * 360 * 0.0002f);
 
     moveMouseToCenter();
-//    std::cout<<"mouse is centered"<<std::endl;
 }
 
 void MyGL::mousePressEvent(QMouseEvent *e) {
-    // TODO
+    if (e->button() == Qt::LeftButton) {
+        m_player.destroyBlock(&m_terrain);
+    } else if (e->button() == Qt::RightButton) {
+        m_player.createBlock(&m_terrain);
+    }
 }
 
 void MyGL::keyPressUpdate(QKeyEvent *e) {

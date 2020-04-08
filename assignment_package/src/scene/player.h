@@ -8,7 +8,7 @@ private:
     glm::vec3 m_velocity, m_acceleration;
     Camera m_camera;
     const Terrain &mcr_terrain;
-
+    int ifAxis;
     void processInputs(InputBundle &inputs);
     void computePhysics(float dT, const Terrain &terrain, InputBundle &inputs);
 
@@ -34,9 +34,16 @@ public:
                    float *out_dist,
                    glm::ivec3 *out_blockHit);
 
+    bool gridMarchTemp(glm::vec3 rayOrigin, int i,
+                   glm::vec3 rayDirection,
+                   const Terrain &terrain,
+                   float *out_dist,
+                   glm::ivec3 *out_blockHit);
     // check whether the player is at ground
     bool isOnGroundLevel(const Terrain &terrain, InputBundle &input);
 
+    void destroyBlock(Terrain *terrain);
+    void createBlock(Terrain *terrain);
     // Player overrides all of Entity's movement
     // functions so that it transforms its camera
     // by the same amount as it transforms itself.
