@@ -20,7 +20,7 @@ void Player::processInputs(InputBundle &inputs) {
 
     if (inputs.isFlightMode) {
         if (inputs.wPressed) {
-            m_acceleration = accRate * this->m_forward;
+            m_acceleration = 10 * accRate * this->m_forward;
         } else if (inputs.sPressed) {
             m_acceleration = -accRate * this->m_forward;
         } else if (inputs.dPressed) {
