@@ -9,9 +9,9 @@
 
 ShaderProgram::ShaderProgram(OpenGLContext *context)
     : vertShader(), fragShader(), prog(),
-      attrPos(-1), attrNor(-1), attrCol(-1),
+      attrPos(-1), attrNor(-1), attrUv(-1), animate(-1),
       unifModel(-1), unifModelInvTr(-1), unifViewProj(-1), unifColor(-1),
-      context(context)
+      unifSampler2D(-1), unifTime(-1), context(context)
 {}
 
 void ShaderProgram::create(const char *vertfile, const char *fragfile)
@@ -64,12 +64,16 @@ void ShaderProgram::create(const char *vertfile, const char *fragfile)
 
     attrPos = context->glGetAttribLocation(prog, "vs_Pos");
     attrNor = context->glGetAttribLocation(prog, "vs_Nor");
-    attrCol = context->glGetAttribLocation(prog, "vs_Col");
+    attrUv = context->glGetAttribLocation(prog, "vs_UV");
+    animate = context->glGetAttribLocation(prog, "vs_animate");
 
     unifModel      = context->glGetUniformLocation(prog, "u_Model");
     unifModelInvTr = context->glGetUniformLocation(prog, "u_ModelInvTr");
     unifViewProj   = context->glGetUniformLocation(prog, "u_ViewProj");
     unifColor      = context->glGetUniformLocation(prog, "u_Color");
+    unifSampler2D = context->glGetUniformLocation(prog, "u_Texture");
+    unifTime = context->glGetUniformLocation(prog, "u_Time");
+
 }
 
 void ShaderProgram::useMe()
@@ -135,7 +139,7 @@ void ShaderProgram::setGeometryColor(glm::vec4 color)
     }
 }
 
-//This function, as its name implies, uses the passed in GL widget
+////This function, as its name implies, uses the passed in GL widget
 void ShaderProgram::draw(Drawable &d)
 {
     useMe();
@@ -195,30 +199,61 @@ void ShaderProgram::draw(Drawable &d)
 }
 
 //use this draw function for interleaved vbo data for chunks (Elaine 1st)
-void ShaderProgram::drawInterleaved(Drawable &d) {
+void ShaderProgram::drawInterleaved(Drawable &d, int textureSlot = 0, int version = 0, int t = 0) {
     useMe();
 
     if(d.elemCount() < 0) {
         throw std::out_of_range("Attempting to draw a drawable with m_count of " + std::to_string(d.elemCount()) + "!");
     }
 
-    if (attrPos != -1 && attrCol != -1 && attrNor != -1 && d.bindAll()) {
-        context->glEnableVertexAttribArray(attrPos);
-        context->glVertexAttribPointer(attrPos, 4, GL_FLOAT, false, 3 * sizeof(glm::vec4), (void*)0);
-        context->glEnableVertexAttribArray(attrNor);
-        context->glVertexAttribPointer(attrNor, 4, GL_FLOAT, false, 3 * sizeof(glm::vec4), (void*)sizeof(glm::vec4));
-        context->glEnableVertexAttribArray(attrCol);
-        context->glVertexAttribPointer(attrCol, 4, GL_FLOAT, false, 3 * sizeof(glm::vec4), (void*)(2*sizeof(glm::vec4)));
-
+    if(unifSampler2D != -1)
+    {
+        context->glUniform1i(unifSampler2D, /*GL_TEXTURE*/textureSlot);
     }
-    d.bindIdx();
-    context->glDrawElements(d.drawMode(), d.elemCount(), GL_UNSIGNED_INT, 0);
+    if (unifTime != -1) {
+        context->glUniform1i(unifTime, t);
+    }
 
-    if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
-    if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);
-    if (attrCol != -1) context->glDisableVertexAttribArray(attrCol);
+    if (version == 0) {
+        if (attrPos != -1 && attrUv != -1 && attrNor != -1 && animate != -1 && d.bindAllOpaque()) {
+            context->glEnableVertexAttribArray(attrPos);
+            context->glVertexAttribPointer(attrPos, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)0);
+            context->glEnableVertexAttribArray(attrNor);
+            context->glVertexAttribPointer(attrNor, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)(4*sizeof(float)));
+            context->glEnableVertexAttribArray(attrUv);
+            context->glVertexAttribPointer(attrUv, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)(8*sizeof(float)));
+            context->glEnableVertexAttribArray(animate);
+            context->glVertexAttribPointer(animate, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)(10*sizeof(float)));
+        }
+        d.bindIdx();
+        context->glDrawElements(d.drawMode(), d.elemCount(), GL_UNSIGNED_INT, 0);
 
-    context->printGLErrorLog();
+        if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
+        if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);
+        if (attrUv != -1) context->glDisableVertexAttribArray(attrUv);
+        if (animate != -1) context->glDisableVertexAttribArray(animate);
+        context->printGLErrorLog();
+
+    } else {
+        if (attrPos != -1 && attrUv != -1 && attrNor != -1 && animate != -1 && d.bindAllTransparent()) {
+            context->glEnableVertexAttribArray(attrPos);
+            context->glVertexAttribPointer(attrPos, 4, GL_FLOAT, false, 10 * sizeof(float), (void*)0);
+            context->glEnableVertexAttribArray(attrNor);
+            context->glVertexAttribPointer(attrNor, 4, GL_FLOAT, false, 10 * sizeof(float), (void*)(4*sizeof(float)));
+            context->glEnableVertexAttribArray(attrUv);
+            context->glVertexAttribPointer(attrUv, 4, GL_FLOAT, false, 10 * sizeof(float), (void*)(8*sizeof(float)));
+            context->glEnableVertexAttribArray(animate);
+            context->glVertexAttribPointer(animate, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)(10*sizeof(float)));
+        }
+        d.bindIdx();
+        context->glDrawElements(d.drawMode(), d.elemCount(), GL_UNSIGNED_INT, 0);
+
+        if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
+        if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);
+        if (attrUv != -1) context->glDisableVertexAttribArray(attrUv);
+        if (animate != -1) context->glDisableVertexAttribArray(animate);
+        context->printGLErrorLog();
+    }
 
 }
 

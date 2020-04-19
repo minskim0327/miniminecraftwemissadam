@@ -11,7 +11,8 @@ MyGL::MyGL(QWidget *parent)
       m_worldAxes(this),
       m_progLambert(this), m_progFlat(this),
       m_terrain(this), m_player(glm::vec3(48.f, 129.f, 48.f), m_terrain),
-      m_currMSecSinceEpoch(QDateTime::currentMSecsSinceEpoch())
+      m_currMSecSinceEpoch(QDateTime::currentMSecsSinceEpoch()),
+     m_texture(this),  m_time(0.f)
 {
     // Connect the timer to a function so that when the timer ticks the function is executed
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(tick()));
@@ -76,6 +77,13 @@ void MyGL::initializeGL()
     // using multiple VAOs, we can just bind one once.
     glBindVertexArray(vao);
 
+    //transparency (Elaine2)
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    m_texture.create(":/textures/minecraft_textures_all.png");
+    m_texture.load(0);
+
     m_terrain.CreateTestScene();
     //m_terrain.updateScene(m_player.mcr_position);
 
@@ -136,6 +144,11 @@ void MyGL::paintGL() {
     m_progLambert.setViewProjMatrix(m_player.mcr_camera.getViewProj());
     m_progLambert.setModelMatrix(glm::mat4());
 
+    //elaine2
+    m_texture.bind(0);
+    m_terrain.setTime(m_time);
+    m_time++;
+
     renderTerrain();
 
     glDisable(GL_DEPTH_TEST);
@@ -191,13 +204,15 @@ void MyGL::keyReleaseEvent(QKeyEvent *e) {
 
 void MyGL::mouseMoveEvent(QMouseEvent *e) {
     // For windows
-    float dx = e->pos().x() - this->width()/2;
-    float dy = e->pos().y() - this->height()/2;
+    //float dx = e->pos().x() - this->width()/2;
+    //float dy = e->pos().y() - this->height()/2;
 
     // For mac
+    float dx = (e->pos().x() - this->width() * 0.5 + this->pos().x()) / (float) width();
+    float dy = (e->pos().y() - this->height() * 0.5 + this->pos().y()) / (float) height();
 
-    m_player.rotateOnUpGlobal(-dx * 360 * 0.0002f);
-    m_player.rotateOnRightLocal(-dy * 360 * 0.0002f);
+    m_player.rotateOnUpGlobal(-dx * 360 * 0.005f);
+    m_player.rotateOnRightLocal(-dy * 360 * 0.005f);
 
     moveMouseToCenter();
 }

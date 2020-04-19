@@ -15,7 +15,8 @@ protected:
                    // Instead, we use a uniform vec4 in the shader to set an overall color for the geometry
 
     //for interleaved data
-    GLuint m_bufAll;
+    GLuint m_bufAllOpaque;
+    GLuint m_bufAllTransparent;
 
     bool m_idxGenerated; // Set to TRUE by generateIdx(), returned by bindIdx().
     bool m_posGenerated;
@@ -23,7 +24,8 @@ protected:
     bool m_colGenerated;
 
     //for interleaved data
-    bool m_allGenerated;
+    bool m_allOpaqueGenerated;
+    bool m_allTransparentGenerated;
 
     OpenGLContext* mp_context; // Since Qt's OpenGL support is done through classes like QOpenGLFunctions_3_2_Core,
                           // we need to pass our OpenGL context to the Drawable in order to call GL functions
@@ -49,7 +51,8 @@ public:
     void generateCol();
 
     //for interleaved data
-    void generateAll();
+    void generateAllOpaque();
+    void generatedAllTransparent();
 
     bool bindIdx();
     bool bindPos();
@@ -57,5 +60,7 @@ public:
     bool bindCol();
 
     //for interleaved data
-    bool bindAll();
+    bool bindAllOpaque();
+    bool bindAllTransparent();
+
 };

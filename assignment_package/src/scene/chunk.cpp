@@ -36,20 +36,41 @@ Chunk::~Chunk() {}
 void Chunk::create() {
 
     int num_count = 0; //num increased by 4 every time for index vbo
-    std::vector<glm::vec4> pos;
-    std::vector<glm::vec4> col;
-    std::vector<glm::vec4> nor;
-    std::vector<glm::vec4> all; //interleaved
+    std::vector<glm::vec4> posOpq;
+    std::vector<glm::vec4> norOpq;
+    std::vector<glm::vec2> uvOpq;
+    std::vector<glm::vec4> posTran;
+    std::vector<glm::vec4> norTran;
+    std::vector<glm::vec2> uvTran;
+    std::vector<float> animOpq;
+    std::vector<float> animTran;
+    std::vector<float> allOpq; //interleaved
+    std::vector<float> allTran;
     std::vector<GLuint> idx;
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 256; ++y) {
             for (int z = 0; z < 16; ++z) {
 
+                std::vector<glm::vec4> pos;
+                std::vector<glm::vec4> nor;
+                std::vector<glm::vec2> uv;
+                std::vector<float> anim;
+
                 int num = 0; //num of faces in each block that we want to save data
                 BlockType t = getBlockAt(x, y, z);
                 if (t == EMPTY) {
                     continue;
+                } else if (t == GRASS || t == DIRT || t == STONE || t == SNOW || t == LAVA) {
+                    pos = posOpq;
+                    nor = norOpq;
+                    uv = uvOpq;
+                    anim = animOpq;
+                } else {
+                    pos = posTran;
+                    nor = norTran;
+                    uv = uvTran;
+                    anim = animTran;
                 }
 
                 // to create vbo data for 6 faces
@@ -107,7 +128,7 @@ void Chunk::create() {
                     backBlock = getBlockAt(x, y, z-1);
                 }
 
-                if (topBlock == EMPTY) {
+                if (topBlock == EMPTY || topBlock == WATER || topBlock == ICE) {
                     num++;
                     glm::vec4 normal(0.f, 1.f, 0.f, 0.f);
                     nor.push_back(normal);
@@ -119,8 +140,96 @@ void Chunk::create() {
                     pos.push_back(glm::vec4(x + worldP_x + 1, y+1, z + worldP_z, 1.f));
                     pos.push_back(glm::vec4(x + worldP_x + 1, y+1, z + worldP_z -1, 1.f));
                     pos.push_back(glm::vec4(x + worldP_x, y+1, z + worldP_z-1, 1.f));
+
+                    switch(t) {
+                    case GRASS:
+                        //col.push_back(glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f);
+                        uv.push_back(glm::vec2(8.f/16.f, 13.f/16.f));
+                        uv.push_back(glm::vec2(9.f/16.f, 13.f/16.f));
+                        uv.push_back(glm::vec2(9.f/16.f, 14.f/16.f));
+                        uv.push_back(glm::vec2(8.f/16.f, 14.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+
+                        break;
+                    case DIRT:
+                        //col.push_back(glm::vec4(121.f, 85.f, 58.f, 255.f) / 255.f);
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+
+                        break;
+                    case STONE:
+                        //col.push_back(glm::vec4(0.5f));
+                        uv.push_back(glm::vec2(1.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+
+                        break;
+                    case SNOW:
+                        //col.push_back(glm::vec4(1.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 12.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+
+                        break;
+                    case ICE:
+                        uv.push_back(glm::vec2(3.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 12.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+
+                        break;
+                    case LAVA:
+                        uv.push_back(glm::vec2(13.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 2.f/16.f));
+                        uv.push_back(glm::vec2(13.f/16.f, 2.f/16.f));
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        break;
+                    case WATER:
+                        uv.push_back(glm::vec2(13.f/16.f, 3.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 3.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 4.f/16.f));
+                        uv.push_back(glm::vec2(13.f/16.f, 4.f/16.f));
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        break;
+                    default:
+                        uv.push_back(glm::vec2(0.f/16.f, 0.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 0.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(0.f/16.f, 1.f/16.f));
+                        break;
+                    }
                 }
-                if (botBlock == EMPTY) {
+                if (botBlock == EMPTY || topBlock == WATER || topBlock == ICE) {
                     num++;
                     glm::vec4 normal(0.f, -1.f, 0.f, 0.f);
                     nor.push_back(normal);
@@ -132,8 +241,91 @@ void Chunk::create() {
                     pos.push_back(glm::vec4(x + worldP_x + 1, y, z + worldP_z - 1, 1.f));
                     pos.push_back(glm::vec4(x + worldP_x + 1, y, z + worldP_z, 1.f));
                     pos.push_back(glm::vec4(x + worldP_x, y, z + worldP_z, 1.f));
+
+                    switch(t) {
+                    case GRASS:
+                        //col.push_back(glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f);
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case DIRT:
+                        //col.push_back(glm::vec4(121.f, 85.f, 58.f, 255.f) / 255.f);
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case STONE:
+                        //col.push_back(glm::vec4(0.5f));
+                        uv.push_back(glm::vec2(1.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case SNOW:
+                        //col.push_back(glm::vec4(1.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 12.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case ICE:
+                        uv.push_back(glm::vec2(3.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 12.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case LAVA:
+                        uv.push_back(glm::vec2(13.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 2.f/16.f));
+                        uv.push_back(glm::vec2(13.f/16.f, 2.f/16.f));
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        break;
+                    case WATER:
+                        uv.push_back(glm::vec2(13.f/16.f, 3.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 3.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 4.f/16.f));
+                        uv.push_back(glm::vec2(13.f/16.f, 4.f/16.f));
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        break;
+                    default:
+                        uv.push_back(glm::vec2(0.f/16.f, 0.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 0.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(0.f/16.f, 1.f/16.f));
+                        break;
+                    }
                 }
-                if (rightBlock == EMPTY) {
+                if (rightBlock == EMPTY || topBlock == WATER || topBlock == ICE) {
                     num++;
                     glm::vec4 normal(1.f, 0.f, 0.f, 0.f);
                     nor.push_back(normal);
@@ -145,8 +337,91 @@ void Chunk::create() {
                     pos.push_back(glm::vec4(x + worldP_x + 1, y, z + worldP_z, 1.f));
                     pos.push_back(glm::vec4(x + worldP_x + 1, y, z + worldP_z - 1, 1.f));
                     pos.push_back(glm::vec4(x + worldP_x + 1, y+1, z + worldP_z - 1, 1.f));
+
+                    switch(t) {
+                    case GRASS:
+                        //col.push_back(glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f);
+                        uv.push_back(glm::vec2(3.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case DIRT:
+                        //col.push_back(glm::vec4(121.f, 85.f, 58.f, 255.f) / 255.f);
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case STONE:
+                        //col.push_back(glm::vec4(0.5f));
+                        uv.push_back(glm::vec2(1.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case SNOW:
+                        //col.push_back(glm::vec4(1.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 12.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case ICE:
+                        uv.push_back(glm::vec2(3.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 12.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case LAVA:
+                        uv.push_back(glm::vec2(13.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 2.f/16.f));
+                        uv.push_back(glm::vec2(13.f/16.f, 2.f/16.f));
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        break;
+                    case WATER:
+                        uv.push_back(glm::vec2(13.f/16.f, 3.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 3.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 4.f/16.f));
+                        uv.push_back(glm::vec2(13.f/16.f, 4.f/16.f));
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        break;
+                    default:
+                        uv.push_back(glm::vec2(0.f/16.f, 0.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 0.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(0.f/16.f, 1.f/16.f));
+                        break;
+                    }
                 }
-                if (leftBlock == EMPTY) {
+                if (leftBlock == EMPTY || topBlock == WATER || topBlock == ICE) {
                     num++;
                     glm::vec4 normal(-1.f, 0.f, 0.f, 0.f);
                     nor.push_back(normal);
@@ -158,8 +433,91 @@ void Chunk::create() {
                     pos.push_back(glm::vec4(x + worldP_x, y+1, z + worldP_z, 1.f));
                     pos.push_back(glm::vec4(x + worldP_x, y+1, z + worldP_z -1, 1.f));
                     pos.push_back(glm::vec4(x + worldP_x, y, z + worldP_z - 1, 1.f));
+
+                    switch(t) {
+                    case GRASS:
+                        //col.push_back(glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f);
+                        uv.push_back(glm::vec2(3.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case DIRT:
+                        //col.push_back(glm::vec4(121.f, 85.f, 58.f, 255.f) / 255.f);
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case STONE:
+                        //col.push_back(glm::vec4(0.5f));
+                        uv.push_back(glm::vec2(1.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case SNOW:
+                        //col.push_back(glm::vec4(1.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 12.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case ICE:
+                        uv.push_back(glm::vec2(3.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 12.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case LAVA:
+                        uv.push_back(glm::vec2(13.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 2.f/16.f));
+                        uv.push_back(glm::vec2(13.f/16.f, 2.f/16.f));
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        break;
+                    case WATER:
+                        uv.push_back(glm::vec2(13.f/16.f, 3.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 3.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 4.f/16.f));
+                        uv.push_back(glm::vec2(13.f/16.f, 4.f/16.f));
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        break;
+                    default:
+                        uv.push_back(glm::vec2(0.f/16.f, 0.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 0.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(0.f/16.f, 1.f/16.f));
+                        break;
+                    }
                 }
-                if (frontBlock == EMPTY) {
+                if (frontBlock == EMPTY || topBlock == WATER || topBlock == ICE) {
                     num++;
                     glm::vec4 normal(0.f, 0.f, 1.f, 0.f);
                     nor.push_back(normal);
@@ -171,8 +529,91 @@ void Chunk::create() {
                     pos.push_back(glm::vec4(x + worldP_x + 1, y, z + worldP_z, 1.f));
                     pos.push_back(glm::vec4(x + worldP_x + 1, y+1, z + worldP_z, 1.f));
                     pos.push_back(glm::vec4(x + worldP_x, y+1, z + worldP_z, 1.f));
+
+                    switch(t) {
+                    case GRASS:
+                        //col.push_back(glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f);
+                        uv.push_back(glm::vec2(3.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case DIRT:
+                        //col.push_back(glm::vec4(121.f, 85.f, 58.f, 255.f) / 255.f);
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case STONE:
+                        //col.push_back(glm::vec4(0.5f));
+                        uv.push_back(glm::vec2(1.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case SNOW:
+                        //col.push_back(glm::vec4(1.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 12.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case ICE:
+                        uv.push_back(glm::vec2(3.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 12.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case LAVA:
+                        uv.push_back(glm::vec2(13.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 2.f/16.f));
+                        uv.push_back(glm::vec2(13.f/16.f, 2.f/16.f));
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        break;
+                    case WATER:
+                        uv.push_back(glm::vec2(13.f/16.f, 3.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 3.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 4.f/16.f));
+                        uv.push_back(glm::vec2(13.f/16.f, 4.f/16.f));
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        break;
+                    default:
+                        uv.push_back(glm::vec2(0.f/16.f, 0.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 0.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(0.f/16.f, 1.f/16.f));
+                        break;
+                    }
                 }
-                if (backBlock == EMPTY) {
+                if (backBlock == EMPTY || topBlock == WATER || topBlock == ICE) {
                     num++;
                     glm::vec4 normal(0.f, 0.f, -1.f, 0.f);
                     nor.push_back(normal);
@@ -184,28 +625,91 @@ void Chunk::create() {
                     pos.push_back(glm::vec4(x + worldP_x + 1, y+1, z + worldP_z - 1, 1.f));
                     pos.push_back(glm::vec4(x + worldP_x + 1, y, z + worldP_z - 1, 1.f));
                     pos.push_back(glm::vec4(x + worldP_x, y, z + worldP_z - 1, 1.f));
-                }
 
-                for (int i = 0; i < num * 4; ++i) {
                     switch(t) {
                     case GRASS:
-                        col.push_back(glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f);
+                        //col.push_back(glm::vec4(95.f, 159.f, 53.f, 255.f) / 255.f);
+                        uv.push_back(glm::vec2(3.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
                         break;
                     case DIRT:
-                        col.push_back(glm::vec4(121.f, 85.f, 58.f, 255.f) / 255.f);
+                        //col.push_back(glm::vec4(121.f, 85.f, 58.f, 255.f) / 255.f);
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
                         break;
                     case STONE:
-                        col.push_back(glm::vec4(0.5f));
+                        //col.push_back(glm::vec4(0.5f));
+                        uv.push_back(glm::vec2(1.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 15.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 16.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 16.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
                         break;
                     case SNOW:
-                        col.push_back(glm::vec4(1.f));
+                        //col.push_back(glm::vec4(1.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                        uv.push_back(glm::vec2(2.f/16.f, 12.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case ICE:
+                        uv.push_back(glm::vec2(3.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 11.f/16.f));
+                        uv.push_back(glm::vec2(4.f/16.f, 12.f/16.f));
+                        uv.push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        anim.push_back(0.f);
+                        break;
+                    case LAVA:
+                        uv.push_back(glm::vec2(13.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 2.f/16.f));
+                        uv.push_back(glm::vec2(13.f/16.f, 2.f/16.f));
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        break;
+                    case WATER:
+                        uv.push_back(glm::vec2(13.f/16.f, 3.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 3.f/16.f));
+                        uv.push_back(glm::vec2(14.f/16.f, 4.f/16.f));
+                        uv.push_back(glm::vec2(13.f/16.f, 4.f/16.f));
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
+                        anim.push_back(1.f);
                         break;
                     default:
-                        // Other block types are not yet handled, so we default to black
-                        col.push_back(glm::vec4(0.f));
+                        uv.push_back(glm::vec2(0.f/16.f, 0.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 0.f/16.f));
+                        uv.push_back(glm::vec2(1.f/16.f, 1.f/16.f));
+                        uv.push_back(glm::vec2(0.f/16.f, 1.f/16.f));
                         break;
                     }
                 }
+
 
                 //int num_count = 0;
                 for (int i = 0; i < num; i++) {
@@ -223,32 +727,48 @@ void Chunk::create() {
     }
     m_count = idx.size();
 
-    //interleave
-    for (int i = 0; i < pos.size(); ++i) {
-        all.push_back(pos.at(i));
-        all.push_back(nor.at(i));
-        all.push_back(col.at(i));
+    //interleave Opaque
+    for (int i = 0; i < posOpq.size(); ++i) {
+        allOpq.push_back(posOpq.at(i)[0]);
+        allOpq.push_back(posOpq.at(i)[1]);
+        allOpq.push_back(posOpq.at(i)[2]);
+        allOpq.push_back(posOpq.at(i)[3]);
+        allOpq.push_back(norOpq.at(i)[0]);
+        allOpq.push_back(norOpq.at(i)[1]);
+        allOpq.push_back(norOpq.at(i)[2]);
+        allOpq.push_back(norOpq.at(i)[3]);
+        allOpq.push_back(uvOpq.at(i)[0]);
+        allOpq.push_back(uvOpq.at(i)[1]);
+        allOpq.push_back(animOpq.at(i));
+    }
+
+    //interleave Transparent
+    for (int i = 0; i < posTran.size(); ++i) {
+        allTran.push_back(posTran.at(i)[0]);
+        allTran.push_back(posTran.at(i)[1]);
+        allTran.push_back(posTran.at(i)[2]);
+        allTran.push_back(posTran.at(i)[3]);
+        allTran.push_back(norTran.at(i)[0]);
+        allTran.push_back(norTran.at(i)[1]);
+        allTran.push_back(norTran.at(i)[2]);
+        allTran.push_back(norTran.at(i)[3]);
+        allTran.push_back(uvTran.at(i)[0]);
+        allTran.push_back(uvTran.at(i)[1]);
+        allTran.push_back(animTran.at(i));
     }
 
     generateIdx();
     mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufIdx);
     mp_context->glBufferData(GL_ELEMENT_ARRAY_BUFFER, idx.size() * sizeof(GLuint), idx.data(), GL_STATIC_DRAW);
 
-//    generatePos();
-//    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufPos);
-//    mp_context->glBufferData(GL_ARRAY_BUFFER, pos.size() * sizeof(glm::vec4), pos.data(), GL_STATIC_DRAW);
+    generateAllOpaque();
+    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufAllOpaque);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, allOpq.size() * sizeof(float), allOpq.data(), GL_STATIC_DRAW);
 
-//    generateNor();
-//    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufNor);
-//    mp_context->glBufferData(GL_ARRAY_BUFFER, nor.size() * sizeof(glm::vec4), nor.data(), GL_STATIC_DRAW);
+    generatedAllTransparent();
+    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufAllTransparent);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, allTran.size() * sizeof(float), allTran.data(), GL_STATIC_DRAW);
 
-//    generateCol();
-//    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufCol);
-//    mp_context->glBufferData(GL_ARRAY_BUFFER, col.size() * sizeof(glm::vec4), col.data(), GL_STATIC_DRAW);
-
-    generateAll();
-    mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufAll);
-    mp_context->glBufferData(GL_ARRAY_BUFFER, all.size() * sizeof(glm::vec4), all.data(), GL_STATIC_DRAW);
 }
 
 GLenum Chunk::drawMode() {

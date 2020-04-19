@@ -3,7 +3,9 @@
 
 Drawable::Drawable(OpenGLContext* context)
     : m_count(-1), m_bufIdx(), m_bufPos(), m_bufNor(), m_bufCol(),
+      m_bufAllOpaque(), m_bufAllTransparent(),
       m_idxGenerated(false), m_posGenerated(false), m_norGenerated(false), m_colGenerated(false),
+      m_allOpaqueGenerated(false), m_allTransparentGenerated(false),
       mp_context(context)
 {}
 
@@ -66,9 +68,14 @@ void Drawable::generateCol()
 }
 
 //(Elaine 1st)
-void Drawable::generateAll() {
-    mp_context->glGenBuffers(1, &m_bufAll);
-    m_allGenerated = true;
+void Drawable::generateAllOpaque() {
+    mp_context->glGenBuffers(1, &m_bufAllOpaque);
+    m_allOpaqueGenerated = true;
+}
+
+void Drawable::generatedAllTransparent() {
+    mp_context->glGenBuffers(1, &m_bufAllTransparent);
+    m_allTransparentGenerated = true;
 }
 
 bool Drawable::bindIdx()
@@ -104,9 +111,18 @@ bool Drawable::bindCol()
 }
 
 //(Elaine 1st)
-bool Drawable::bindAll() {
-    if (m_allGenerated) {
-        mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufAll);
+bool Drawable::bindAllOpaque() {
+    if (m_allOpaqueGenerated) {
+        mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufAllOpaque);
     }
-    return m_allGenerated;
+    return m_allOpaqueGenerated;
 }
+
+bool Drawable::bindAllTransparent() {
+    if (m_allTransparentGenerated) {
+        mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufAllTransparent);
+    }
+    return m_allTransparentGenerated;
+}
+
+

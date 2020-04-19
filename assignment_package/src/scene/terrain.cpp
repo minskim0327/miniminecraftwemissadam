@@ -217,6 +217,10 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
     }
 }
 
+void Terrain::setTime(int t) {
+    time = t;
+}
+
 
 // TODO: When you make Chunk inherit from Drawable, change this code so
 // it draws each Chunk with the given ShaderProgram, remembering to set the
@@ -229,7 +233,8 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
 
                 chunk->setWorldPos(x, z);
                 shaderProgram->setModelMatrix(glm::mat4());
-                shaderProgram->drawInterleaved(*chunk);
+                shaderProgram->drawInterleaved(*chunk, 0, 0, time);
+                shaderProgram->drawInterleaved(*chunk, 0, 1, time);
             }
         }
     }

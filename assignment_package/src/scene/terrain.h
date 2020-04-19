@@ -54,6 +54,8 @@ private:
 
     OpenGLContext* mp_context;
 
+    int time;
+
 public:
     Terrain(OpenGLContext *context);
     ~Terrain();
@@ -92,6 +94,9 @@ public:
     void createChunks(int minx, int maxx, int minz, int maxz);
     //expand the terrain
     void updateScene(const glm::vec3 pos, ShaderProgram *shaderProgram);
+
+    //settime (Elaine2)
+    void setTime(int t);
 
     //chang
     int getGrasslandHeight(int x, int z);
