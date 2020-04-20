@@ -139,71 +139,74 @@ void ShaderProgram::setGeometryColor(glm::vec4 color)
     }
 }
 
-////This function, as its name implies, uses the passed in GL widget
-void ShaderProgram::draw(Drawable &d)
-{
-    useMe();
+//////This function, as its name implies, uses the passed in GL widget
+//void ShaderProgram::draw(Drawable &d)
+//{
+//    useMe();
 
-    if(d.elemCount() < 0) {
-        throw std::out_of_range("Attempting to draw a drawable with m_count of " + std::to_string(d.elemCount()) + "!");
-    }
+//    if(d.elemCount() < 0) {
+//        throw std::out_of_range("Attempting to draw a drawable with m_count of " + std::to_string(d.elemCount()) + "!");
+//    }
 
-    // Each of the following blocks checks that:
-    //   * This shader has this attribute, and
-    //   * This Drawable has a vertex buffer for this attribute.
-    // If so, it binds the appropriate buffers to each attribute.
+//    // Each of the following blocks checks that:
+//    //   * This shader has this attribute, and
+//    //   * This Drawable has a vertex buffer for this attribute.
+//    // If so, it binds the appropriate buffers to each attribute.
 
-    // Remember, by calling bindPos(), we call
-    // glBindBuffer on the Drawable's VBO for vertex position,
-    // meaning that glVertexAttribPointer associates vs_Pos
-    // (referred to by attrPos) with that VBO
-    if (attrPos != -1 && d.bindPos()) {
-        context->glEnableVertexAttribArray(attrPos);
-        context->glVertexAttribPointer(attrPos, 4, GL_FLOAT, false, 0, NULL);
-        //                             ^which handle we're referring to
-        //                                      ^num of floats for this attr
-        //                                                          ^size of stride (in terms of sizeof(float))
-        //                                                             ^(void*)(offset)
-        // (pos,nor,col)(pos,nor,col)
-        // stride = 12*sizeof(float)
-        // offset = x*sizeof(float)
-
-
-    }
-
-    // attrPos := handle to the position attribute (referring to in variables)
-    // attrPos == -1, when it does not exist inthe shader prog
+//    // Remember, by calling bindPos(), we call
+//    // glBindBuffer on the Drawable's VBO for vertex position,
+//    // meaning that glVertexAttribPointer associates vs_Pos
+//    // (referred to by attrPos) with that VBO
+//    if (attrPos != -1 && d.bindPos()) {
+//        context->glEnableVertexAttribArray(attrPos);
+//        context->glVertexAttribPointer(attrPos, 4, GL_FLOAT, false, 0, NULL);
+//        //                             ^which handle we're referring to
+//        //                                      ^num of floats for this attr
+//        //                                                          ^size of stride (in terms of sizeof(float))
+//        //                                                             ^(void*)(offset)
+//        // (pos,nor,col)(pos,nor,col)
+//        // stride = 12*sizeof(float)
+//        // offset = x*sizeof(float)
 
 
+//    }
 
-    if (attrNor != -1 && d.bindNor()) {
-        context->glEnableVertexAttribArray(attrNor);
-        context->glVertexAttribPointer(attrNor, 4, GL_FLOAT, false, 0, NULL);
-    }
+//    // attrPos := handle to the position attribute (referring to in variables)
+//    // attrPos == -1, when it does not exist inthe shader prog
 
-    if (attrCol != -1 && d.bindCol()) {
-        context->glEnableVertexAttribArray(attrCol);
-        context->glVertexAttribPointer(attrCol, 4, GL_FLOAT, false, 0, NULL);
-    }
 
-    // Bind the index buffer and then draw shapes from it.
-    // This invokes the shader program, which accesses the vertex buffers.
-    d.bindIdx();
-    context->glDrawElements(d.drawMode(), d.elemCount(), GL_UNSIGNED_INT, 0);
 
-    if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
-    if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);
-    if (attrCol != -1) context->glDisableVertexAttribArray(attrCol);
+//    if (attrNor != -1 && d.bindNor()) {
+//        context->glEnableVertexAttribArray(attrNor);
+//        context->glVertexAttribPointer(attrNor, 4, GL_FLOAT, false, 0, NULL);
+//    }
 
-    context->printGLErrorLog();
-}
+//    if (attrCol != -1 && d.bindCol()) {
+//        context->glEnableVertexAttribArray(attrCol);
+//        context->glVertexAttribPointer(attrCol, 4, GL_FLOAT, false, 0, NULL);
+//    }
+
+//    // Bind the index buffer and then draw shapes from it.
+//    // This invokes the shader program, which accesses the vertex buffers.
+//    d.bindIdx();
+//    context->glDrawElements(d.drawMode(), d.elemCount(), GL_UNSIGNED_INT, 0);
+
+//    if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
+//    if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);
+//    if (attrCol != -1) context->glDisableVertexAttribArray(attrCol);
+
+//    context->printGLErrorLog();
+//}
 
 //use this draw function for interleaved vbo data for chunks (Elaine 1st)
 void ShaderProgram::drawInterleaved(Drawable &d, int textureSlot = 0, int version = 0, int t = 0) {
     useMe();
 
-    if(d.elemCount() < 0) {
-        throw std::out_of_range("Attempting to draw a drawable with m_count of " + std::to_string(d.elemCount()) + "!");
+    if(d.elemCountOpq() < 0) {
+        throw std::out_of_range("Attempting to draw a drawable with m_count_opq of " + std::to_string(d.elemCountOpq()) + "!");
+    }
+    if(d.elemCountTran() < 0) {
+        throw std::out_of_range("Attempting to draw a drawable with m_count_opq of " + std::to_string(d.elemCountTran()) + "!");
     }
 
     if(unifSampler2D != -1)
@@ -225,8 +228,8 @@ void ShaderProgram::drawInterleaved(Drawable &d, int textureSlot = 0, int versio
             context->glEnableVertexAttribArray(animate);
             context->glVertexAttribPointer(animate, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)(10*sizeof(float)));
         }
-        d.bindIdx();
-        context->glDrawElements(d.drawMode(), d.elemCount(), GL_UNSIGNED_INT, 0);
+        d.bindIdxOpq();
+        context->glDrawElements(d.drawMode(), d.elemCountOpq(), GL_UNSIGNED_INT, 0);
 
         if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
         if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);
@@ -237,16 +240,16 @@ void ShaderProgram::drawInterleaved(Drawable &d, int textureSlot = 0, int versio
     } else {
         if (attrPos != -1 && attrUv != -1 && attrNor != -1 && animate != -1 && d.bindAllTransparent()) {
             context->glEnableVertexAttribArray(attrPos);
-            context->glVertexAttribPointer(attrPos, 4, GL_FLOAT, false, 10 * sizeof(float), (void*)0);
+            context->glVertexAttribPointer(attrPos, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)0);
             context->glEnableVertexAttribArray(attrNor);
-            context->glVertexAttribPointer(attrNor, 4, GL_FLOAT, false, 10 * sizeof(float), (void*)(4*sizeof(float)));
+            context->glVertexAttribPointer(attrNor, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)(4*sizeof(float)));
             context->glEnableVertexAttribArray(attrUv);
-            context->glVertexAttribPointer(attrUv, 4, GL_FLOAT, false, 10 * sizeof(float), (void*)(8*sizeof(float)));
+            context->glVertexAttribPointer(attrUv, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)(8*sizeof(float)));
             context->glEnableVertexAttribArray(animate);
             context->glVertexAttribPointer(animate, 4, GL_FLOAT, false, 11 * sizeof(float), (void*)(10*sizeof(float)));
         }
-        d.bindIdx();
-        context->glDrawElements(d.drawMode(), d.elemCount(), GL_UNSIGNED_INT, 0);
+        d.bindIdxTran();
+        context->glDrawElements(d.drawMode(), d.elemCountTran(), GL_UNSIGNED_INT, 0);
 
         if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
         if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);

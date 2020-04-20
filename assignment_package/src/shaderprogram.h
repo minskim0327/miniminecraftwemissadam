@@ -17,7 +17,7 @@ public:
 
     int attrPos; // A handle for the "in" vec4 representing vertex position in the vertex shader
     int attrNor; // A handle for the "in" vec4 representing vertex normal in the vertex shader
-    int attrCol; // A handle for the "in" vec4 representing vertex color in the vertex shader
+    //int attrCol; // A handle for the "in" vec4 representing vertex color in the vertex shader
 
     int attrUv; // A handle for the "in" vec4 representing vertex uv in the vertex shader
     int animate; //for water and lava animation
@@ -43,7 +43,7 @@ public:
     // Pass the given color to this shader on the GPU
     void setGeometryColor(glm::vec4 color);
     // Draw the given object to our screen using this ShaderProgram's shaders
-    void draw(Drawable &d);
+    //void draw(Drawable &d);
     //Draw second function with interleaved
     void drawInterleaved(Drawable &d, int textureSlot, int version, int t);
     // Utility function used in create()

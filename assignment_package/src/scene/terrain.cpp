@@ -4,11 +4,11 @@
 #include <iostream>
 
 Terrain::Terrain(OpenGLContext *context)
-    : m_chunks(), m_generatedTerrain(), m_geomCube(context), mp_context(context)
+    : m_chunks(), m_generatedTerrain(), mp_context(context)
 {}
 
 Terrain::~Terrain() {
-    m_geomCube.destroy();
+    //m_geomCube.destroy();
 }
 
 // Combine two 32-bit ints into one 64-bit int
@@ -234,6 +234,17 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
                 chunk->setWorldPos(x, z);
                 shaderProgram->setModelMatrix(glm::mat4());
                 shaderProgram->drawInterleaved(*chunk, 0, 0, time);
+
+            }
+        }
+    }
+    for(int x = minX; x < maxX; x += 16) {
+        for(int z = minZ; z < maxZ; z += 16) {
+            if (hasChunkAt(x, z)) {
+                const uPtr<Chunk> &chunk = getChunkAt(x, z);
+
+                chunk->setWorldPos(x, z);
+                shaderProgram->setModelMatrix(glm::mat4());
                 shaderProgram->drawInterleaved(*chunk, 0, 1, time);
             }
         }

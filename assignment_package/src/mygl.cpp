@@ -60,7 +60,7 @@ void MyGL::initializeGL()
     glGenVertexArrays(1, &vao);
 
     //Create the instance of the world axes
-    m_worldAxes.create();
+    //m_worldAxes.create();
 
     // Create and set up the diffuse shader
     m_progLambert.create(":/glsl/lambert.vert.glsl", ":/glsl/lambert.frag.glsl");
@@ -154,7 +154,7 @@ void MyGL::paintGL() {
     glDisable(GL_DEPTH_TEST);
     m_progFlat.setModelMatrix(glm::mat4());
     m_progFlat.setViewProjMatrix(m_player.mcr_camera.getViewProj());
-    m_progFlat.draw(m_worldAxes);
+    //m_progFlat.draw(m_worldAxes);
     glEnable(GL_DEPTH_TEST);
 }
 
