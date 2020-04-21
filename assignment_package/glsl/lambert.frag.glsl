@@ -96,7 +96,7 @@ void main()
     vec2 uv = fs_UV;
         if (fs_animate != 0.0f) {
             if (fs_Nor[0] != 0.0f || fs_Nor[2] != 0.0f) {
-                uv = vec2(fs_UV.x, fs_UV.y + mod(u_Time / 8000.f, 1.f / 16.f));
+                uv = vec2(fs_UV.x + mod(u_Time / 8000.f, 1.f / 16.f), fs_UV.y);
             } else {
                 uv = vec2(fs_UV.x + mod(u_Time / 8000.f, 1.f / 16.f), fs_UV.y);
             }
