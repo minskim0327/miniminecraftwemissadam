@@ -2,6 +2,7 @@
 #include "cube.h"
 #include <stdexcept>
 #include <iostream>
+#include "river.h"
 
 Terrain::Terrain(OpenGLContext *context)
     : m_chunks(), m_generatedTerrain(), m_geomCube(context), mp_context(context)
@@ -215,6 +216,7 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
         left->setWorldPos(x -16, z);
         left->create();
     }
+    River river = River(this, (int) glm::floor(pos.x / 64.f), (int) glm::floor(pos.z / 64.f));
 }
 
 
@@ -262,26 +264,19 @@ void Terrain::CreateTestScene()
     // now exists.
     m_generatedTerrain.insert(toKey(0, 0));
 
+
     // Create the basic terrain floor
     for(int x = 0; x < 64; ++x) {
         for(int z = 0; z < 64; ++z) {
             fillBlock(x, z);
         }
     }
-    // Add "walls" for collision testing
-//    for(int x = 0; x < 64; ++x) {
-//        setBlockAt(x, 129, 0, GRASS);
-//        setBlockAt(x, 130, 0, GRASS);
-//        setBlockAt(x, 129, 63, GRASS);
-//        setBlockAt(0, 130, x, GRASS);
-//    }
-//    // Add a central column
-//    for(int y = 129; y < 140; ++y) {
-//        setBlockAt(32, y, 32, GRASS);
-//    }
+    River river = River(this, 0, 0);
+    river.draw();
 
     //create chunk vbo data (Elaine 1st)
     createChunks(0, 64, 0, 64);
+
 
 }
 
@@ -358,7 +353,7 @@ float Terrain::surflet(glm::vec2 p, glm::vec2 gridPoint) {
 
 int Terrain::getGrasslandHeight(int x, int z) {
     float worley = worleyNoise(glm::vec2(x / 64.f, z / 64.f));
-    return 129 + (worley) * 127 / 2;
+    return 129 + (worley) * 127 / 2 + 5;
 }
 
 int Terrain::getMountainHeight(int x, int z) {

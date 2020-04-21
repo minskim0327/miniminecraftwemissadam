@@ -200,6 +200,9 @@ void Chunk::create() {
                     case SNOW:
                         col.push_back(glm::vec4(1.f));
                         break;
+                    case WATER:
+                        col.push_back(glm::vec4(0.f, 0.f, 255.f, 255.f) / 255.f);
+                        break;
                     default:
                         // Other block types are not yet handled, so we default to black
                         col.push_back(glm::vec4(0.f));

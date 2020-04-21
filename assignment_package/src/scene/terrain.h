@@ -7,7 +7,9 @@
 #include <unordered_set>
 #include "shaderprogram.h"
 #include "cube.h"
+#include "river.h"
 
+class River;
 
 //using namespace std;
 
