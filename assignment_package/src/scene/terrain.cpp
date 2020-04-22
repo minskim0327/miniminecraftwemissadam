@@ -5,11 +5,11 @@
 #include "river.h"
 
 Terrain::Terrain(OpenGLContext *context)
-    : m_chunks(), m_generatedTerrain(), m_geomCube(context), mp_context(context)
+    : m_chunks(), m_generatedTerrain(), mp_context(context)
 {}
 
 Terrain::~Terrain() {
-    m_geomCube.destroy();
+    //m_geomCube.destroy();
 }
 
 // Combine two 32-bit ints into one 64-bit int
@@ -155,6 +155,9 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
     Chunk* backward  = nullptr;
     Chunk* right  = nullptr;
     Chunk* left  = nullptr;
+    River river = River(this, (int) glm::floor(pos.x / 64.f), (int) glm::floor(pos.z / 64.f));
+    int xpos = (int) glm::floor(pos.x / 64.f);
+    int zpos = (int) glm::floor(pos.z / 64.f);
     if (!hasChunkAt(x, z + 16)) {
         forward = createChunkAt(x, z + 16);
     }
@@ -178,6 +181,8 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
 //                    setBlockAt(i, 128, j, DIRT);
 //                }
                 fillBlock(i, j);
+                if (xpos * zpos % 2 == 0)
+                    river.draw();
             }
         }
         forward->setWorldPos(x, z +16);
@@ -193,6 +198,8 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
 //                    setBlockAt(i, 128, j, DIRT);
 //                }
                 fillBlock(i, j);
+                if (xpos * zpos % 2 == 0)
+                    river.draw();
             }
         }
         backward->setWorldPos(x, z -16);
@@ -202,6 +209,8 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
         for(int i = x +16; i < x + 32; ++i) {
             for(int j = z; j < z + 16; ++j) {
                 fillBlock(i, j);
+                if (xpos * zpos % 2 == 0)
+                    river.draw();
             }
         }
         right->setWorldPos(x +16, z);
@@ -211,12 +220,18 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
         for(int i = x -16; i < x; ++i) {
             for(int j = z; j < z + 16; ++j) {
                 fillBlock(i, j);
+                if (xpos * zpos % 2 == 0)
+                    river.draw();
             }
         }
         left->setWorldPos(x -16, z);
         left->create();
     }
-    River river = River(this, (int) glm::floor(pos.x / 64.f), (int) glm::floor(pos.z / 64.f));
+
+}
+
+void Terrain::setTime(int t) {
+    time = t;
 }
 
 
@@ -231,7 +246,19 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
 
                 chunk->setWorldPos(x, z);
                 shaderProgram->setModelMatrix(glm::mat4());
-                shaderProgram->drawInterleaved(*chunk);
+                shaderProgram->drawInterleaved(*chunk, 0, 0, time);
+
+            }
+        }
+    }
+    for(int x = minX; x < maxX; x += 16) {
+        for(int z = minZ; z < maxZ; z += 16) {
+            if (hasChunkAt(x, z)) {
+                const uPtr<Chunk> &chunk = getChunkAt(x, z);
+
+                chunk->setWorldPos(x, z);
+                shaderProgram->setModelMatrix(glm::mat4());
+                shaderProgram->drawInterleaved(*chunk, 0, 1, time);
             }
         }
     }

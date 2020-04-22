@@ -17,12 +17,18 @@ public:
 
     int attrPos; // A handle for the "in" vec4 representing vertex position in the vertex shader
     int attrNor; // A handle for the "in" vec4 representing vertex normal in the vertex shader
-    int attrCol; // A handle for the "in" vec4 representing vertex color in the vertex shader
+    //int attrCol; // A handle for the "in" vec4 representing vertex color in the vertex shader
+
+    int attrUv; // A handle for the "in" vec4 representing vertex uv in the vertex shader
+    int animate; //for water and lava animation
 
     int unifModel; // A handle for the "uniform" mat4 representing model matrix in the vertex shader
     int unifModelInvTr; // A handle for the "uniform" mat4 representing inverse transpose of the model matrix in the vertex shader
     int unifViewProj; // A handle for the "uniform" mat4 representing combined projection and view matrices in the vertex shader
     int unifColor; // A handle for the "uniform" vec4 representing color of geometry in the vertex shader
+
+    int unifSampler2D; // A handle to the uniform sampler2D that will be used to read the texture
+    int unifTime; // A handle for the uniform flaot representing time
 
 public:
     ShaderProgram(OpenGLContext* context);
@@ -37,10 +43,9 @@ public:
     // Pass the given color to this shader on the GPU
     void setGeometryColor(glm::vec4 color);
     // Draw the given object to our screen using this ShaderProgram's shaders
-    void draw(Drawable &d);
+    //void draw(Drawable &d);
     //Draw second function with interleaved
-    void drawInterleaved(Drawable &d);
-
+    void drawInterleaved(Drawable &d, int textureSlot, int version, int t);
     // Utility function used in create()
     char* textFileRead(const char*);
     // Utility function that prints any shader compilation errors to the console

@@ -52,9 +52,11 @@ private:
     // for every non-EMPTY block within its Chunks. This is horribly
     // inefficient, and will cause your game to run very slowly until
     // milestone 1's Chunk VBO setup is completed.
-    Cube m_geomCube;
+    //Cube m_geomCube;
 
     OpenGLContext* mp_context;
+
+    int time;
 
 public:
     Terrain(OpenGLContext *context);
@@ -94,6 +96,9 @@ public:
     void createChunks(int minx, int maxx, int minz, int maxz);
     //expand the terrain
     void updateScene(const glm::vec3 pos, ShaderProgram *shaderProgram);
+
+    //settime (Elaine2)
+    void setTime(int t);
 
     //chang
     int getGrasslandHeight(int x, int z);

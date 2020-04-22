@@ -2,8 +2,9 @@
 #include <glm_includes.h>
 
 Drawable::Drawable(OpenGLContext* context)
-    : m_count(-1), m_bufIdx(), m_bufPos(), m_bufNor(), m_bufCol(),
-      m_idxGenerated(false), m_posGenerated(false), m_norGenerated(false), m_colGenerated(false),
+    : m_bufAllOpaque(), m_bufAllTransparent(), m_bufIdxOpq(), m_bufIdxTran(),
+      m_idxOpqGenerated(false), m_idxTranGenerated(false),
+      m_allOpaqueGenerated(false), m_allTransparentGenerated(false),
       mp_context(context)
 {}
 
@@ -13,12 +14,13 @@ Drawable::~Drawable()
 
 void Drawable::destroy()
 {
-    mp_context->glDeleteBuffers(1, &m_bufIdx);
-    mp_context->glDeleteBuffers(1, &m_bufPos);
-    mp_context->glDeleteBuffers(1, &m_bufNor);
-    mp_context->glDeleteBuffers(1, &m_bufCol);
-    m_idxGenerated = m_posGenerated = m_norGenerated = m_colGenerated = false;
-    m_count = -1;
+    mp_context->glDeleteBuffers(1, &m_bufAllOpaque);
+    mp_context->glDeleteBuffers(1, &m_bufAllTransparent);
+    mp_context->glDeleteBuffers(1, &m_bufIdxOpq);
+    mp_context->glDeleteBuffers(1, &m_bufIdxTran);
+    m_allOpaqueGenerated = m_allTransparentGenerated = m_idxOpqGenerated = m_idxTranGenerated = false;
+    m_count_tran = -1;
+    m_count_opq = -1;
 }
 
 GLenum Drawable::drawMode()
@@ -37,12 +39,16 @@ int Drawable::elemCount()
     return m_count;
 }
 
-void Drawable::generateIdx()
+int Drawable::elemCountOpq()
 {
-    m_idxGenerated = true;
-    // Create a VBO on our GPU and store its handle in bufIdx
-    mp_context->glGenBuffers(1, &m_bufIdx);
+    return m_count_opq;
 }
+
+int Drawable::elemCountTran()
+{
+    return m_count_tran;
+}
+
 
 void Drawable::generatePos()
 {
@@ -65,19 +71,40 @@ void Drawable::generateCol()
     mp_context->glGenBuffers(1, &m_bufCol);
 }
 
-//(Elaine 1st)
-void Drawable::generateAll() {
-    mp_context->glGenBuffers(1, &m_bufAll);
-    m_allGenerated = true;
+void Drawable::generateIdx()
+{
+    m_idxGenerated = true;
+    // Create a VBO on our GPU and store its handle in bufIdx
+    mp_context->glGenBuffers(1, &m_bufIdx);
 }
 
-bool Drawable::bindIdx()
+
+void Drawable::generateIdxOpq()
 {
-    if(m_idxGenerated) {
-        mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufIdx);
-    }
-    return m_idxGenerated;
+    m_idxOpqGenerated = true;
+    // Create a VBO on our GPU and store its handle in bufIdx
+    mp_context->glGenBuffers(1, &m_bufIdxOpq);
 }
+
+void Drawable::generateIdxTran()
+{
+    m_idxTranGenerated = true;
+    // Create a VBO on our GPU and store its handle in bufIdx
+    mp_context->glGenBuffers(1, &m_bufIdxTran);
+}
+
+
+//(Elaine 1st)
+void Drawable::generateAllOpaque() {
+    mp_context->glGenBuffers(1, &m_bufAllOpaque);
+    m_allOpaqueGenerated = true;
+}
+
+void Drawable::generatedAllTransparent() {
+    mp_context->glGenBuffers(1, &m_bufAllTransparent);
+    m_allTransparentGenerated = true;
+}
+
 
 bool Drawable::bindPos()
 {
@@ -103,10 +130,43 @@ bool Drawable::bindCol()
     return m_colGenerated;
 }
 
-//(Elaine 1st)
-bool Drawable::bindAll() {
-    if (m_allGenerated) {
-        mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufAll);
+bool Drawable::bindIdxOpq()
+{
+    if(m_idxOpqGenerated) {
+        mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufIdxOpq);
     }
-    return m_allGenerated;
+    return m_idxOpqGenerated;
 }
+
+bool Drawable::bindIdx()
+{
+    if(m_idxGenerated) {
+        mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufIdx);
+    }
+    return m_idxGenerated;
+}
+
+bool Drawable::bindIdxTran()
+{
+    if(m_idxTranGenerated) {
+        mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufIdxTran);
+    }
+    return m_idxTranGenerated;
+}
+
+//(Elaine 1st)
+bool Drawable::bindAllOpaque() {
+    if (m_allOpaqueGenerated) {
+        mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufAllOpaque);
+    }
+    return m_allOpaqueGenerated;
+}
+
+bool Drawable::bindAllTransparent() {
+    if (m_allTransparentGenerated) {
+        mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufAllTransparent);
+    }
+    return m_allTransparentGenerated;
+}
+
+
