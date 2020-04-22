@@ -233,7 +233,7 @@ void Chunk::create() {
                         break;
                     }
                 }
-                if (botBlock == EMPTY || topBlock == WATER || topBlock == ICE) {
+                if (botBlock == EMPTY || botBlock == WATER || botBlock == ICE) {
                     num++;
                     glm::vec4 normal(0.f, -1.f, 0.f, 0.f);
                     nor->push_back(normal);
@@ -329,7 +329,7 @@ void Chunk::create() {
                         break;
                     }
                 }
-                if (rightBlock == EMPTY || topBlock == WATER || topBlock == ICE) {
+                if (rightBlock == EMPTY || rightBlock == WATER || rightBlock == ICE) {
                     num++;
                     glm::vec4 normal(1.f, 0.f, 0.f, 0.f);
                     nor->push_back(normal);
@@ -337,10 +337,10 @@ void Chunk::create() {
                     nor->push_back(normal);
                     nor->push_back(normal);
 
-                    pos->push_back(glm::vec4(x + worldP_x + 1, y+1, z + worldP_z, 1.f));
                     pos->push_back(glm::vec4(x + worldP_x + 1, y, z + worldP_z, 1.f));
                     pos->push_back(glm::vec4(x + worldP_x + 1, y, z + worldP_z - 1, 1.f));
                     pos->push_back(glm::vec4(x + worldP_x + 1, y+1, z + worldP_z - 1, 1.f));
+                    pos->push_back(glm::vec4(x + worldP_x + 1, y+1, z + worldP_z, 1.f));
 
                     switch(t) {
                     case GRASS:
@@ -425,7 +425,7 @@ void Chunk::create() {
                         break;
                     }
                 }
-                if (leftBlock == EMPTY || topBlock == WATER || topBlock == ICE) {
+                if (leftBlock == EMPTY || leftBlock == WATER || leftBlock == ICE) {
                     num++;
                     glm::vec4 normal(-1.f, 0.f, 0.f, 0.f);
                     nor->push_back(normal);
@@ -433,10 +433,10 @@ void Chunk::create() {
                     nor->push_back(normal);
                     nor->push_back(normal);
 
+                    pos->push_back(glm::vec4(x + worldP_x, y, z + worldP_z - 1, 1.f));
                     pos->push_back(glm::vec4(x + worldP_x, y, z + worldP_z, 1.f));
                     pos->push_back(glm::vec4(x + worldP_x, y+1, z + worldP_z, 1.f));
-                    pos->push_back(glm::vec4(x + worldP_x, y+1, z + worldP_z -1, 1.f));
-                    pos->push_back(glm::vec4(x + worldP_x, y, z + worldP_z - 1, 1.f));
+                    pos->push_back(glm::vec4(x + worldP_x, y+1, z + worldP_z - 1, 1.f));
 
                     switch(t) {
                     case GRASS:
@@ -521,7 +521,7 @@ void Chunk::create() {
                         break;
                     }
                 }
-                if (frontBlock == EMPTY || topBlock == WATER || topBlock == ICE) {
+                if (frontBlock == EMPTY || frontBlock == WATER || frontBlock == ICE) {
                     num++;
                     glm::vec4 normal(0.f, 0.f, 1.f, 0.f);
                     nor->push_back(normal);
@@ -617,7 +617,7 @@ void Chunk::create() {
                         break;
                     }
                 }
-                if (backBlock == EMPTY || topBlock == WATER || topBlock == ICE) {
+                if (backBlock == EMPTY || backBlock == WATER || backBlock == ICE) {
                     num++;
                     glm::vec4 normal(0.f, 0.f, -1.f, 0.f);
                     nor->push_back(normal);
