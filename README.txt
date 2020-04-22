@@ -44,4 +44,4 @@ Chang Hun Lee (L-System Rivers)
  was then used to determine the depth and width of the river branches. I used two iterations to expand the grammar so that the maximum
  depth would be 3. To actually draw the branches, in the GoForward() function, I used the sine function to get steps of curves and 
 rotated them according the the orientation of the branch. I additionally curved the terrain around the river branch by about 3 blocks
- to make the curving look smooth.  
+ to make the curving look smooth. I wasn't able to complete the post processing shader.
