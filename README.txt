@@ -4,7 +4,7 @@ mini-minecraft-wemissadam created by GitHub Classroom
 <MS1>
 Chang Hun Lee - Procedural Terrain 
 Elaine Moon - Efficient Terrain Rendering and Chunking
-Min Suk Kim - Game Engine Tick Function and Player Physics
+Min Seok Kim - Game Engine Tick Function and Player Physics
 
 Chang Hun Lee (Procedural Terrain)
 - For grassland heights, I used Worley noise to the x and z positions divided by 64. To get more uneven noise, I applied perlin
@@ -32,7 +32,7 @@ Besides player's phycis, I also handled different actions regarding mouse events
 
 Chang Hun Lee - L-System Rivers
 Elaine Moon - Texturing and Texture Animation
-Min Suk Kim - Multithreaded Terrain Generation
+Min Seok Kim - Multithreaded Terrain Generation
 
 Elaine Moon (Texturing and Texture Animation)
 - I implemented the texturing features by first setting up texture class so that we can load an image as textures. I reorganized chunk.create() function so that it recognizes each blocktype and saves the uv coordinates instead of color. Then, I made sure that there are separate vbo data for blocks that are transparent and opaque. (Separate pos, uvs, nor, idx) I also had to put a flag variable in the vbo data for per-vertex because I needed the GPU side to be alarmed when the blocktypes are water and lava. This added another float to the interleaved vbo data. Implementing this part included changes in shaderprogram class and drawable class in order to match the GPU side handlers correctly. After I made changes to lambert.frag.glsl and lambert.vert.glsl in order for them to support functions like reading a texture and time. I get the time variable from mygl class where I increment time everytime paintGL() is called. In lambert.frag.glsl, I used the time variable to make the water and lava blocks move their uv coordinates by some offset to give an illusion that they are moving. 
