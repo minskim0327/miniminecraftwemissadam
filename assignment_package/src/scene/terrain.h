@@ -7,13 +7,20 @@
 #include <unordered_set>
 #include "shaderprogram.h"
 #include "cube.h"
+#include "QMutex"
 
-
-//using namespace std;
+using namespace std;
 
 // Helper functions to convert (x, z) to and from hash map key
 int64_t toKey(int x, int z);
 glm::ivec2 toCoords(int64_t k);
+
+
+struct ChunkVBOData {
+    vector<glm::vec4> vertex_data;
+    vector<GLuint> idx_data;
+    Chunk *associated_chunk;
+};
 
 // The container class for all of the Chunks in the game.
 // Ultimately, while Terrain will always store all Chunks,
@@ -21,6 +28,8 @@ glm::ivec2 toCoords(int64_t k);
 // expands.
 class Terrain {
 private:
+
+
     // Stores every Chunk according to the location of its lower-left corner
     // in world space.
     // We combine the X and Z coordinates of the Chunk's corner into one 64-bit int
@@ -57,6 +66,13 @@ private:
 public:
     Terrain(OpenGLContext *context);
     ~Terrain();
+
+    // Minseok Kim MS2
+    std::vector<Chunk*> chunksWithOnlyBlockData;
+    QMutex mutexWithOnlyBlockData;
+
+    std::vector<ChunkVBOData> chunksWithVBOData;
+    QMutex mutexChunksWithVBOData;
 
     // Instantiates a new Chunk and stores it in
     // our chunk map at the given coordinates.
@@ -104,4 +120,7 @@ public:
     float noise1D(int);
     float remap(float, float, float, float, float);
     void fillBlock(int x, int z);
+
+    // Min MS2
+    std::vector<int64_t> checkExpansion(glm::vec3 position);
 };

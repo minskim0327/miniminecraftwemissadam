@@ -58,6 +58,11 @@ public:
     //Chunk();
     Chunk(OpenGLContext*);
     void virtual create();
+    void createVBO(std::vector<glm::vec4>* pos,
+                   std::vector<glm::vec4>* col,
+                   std::vector<glm::vec4>* nor,
+                   std::vector<GLuint>* idx);
+    void sendToGPU(std::vector<glm::vec4>* all,  std::vector<GLuint>* idx);
     virtual ~Chunk();
     GLenum virtual drawMode();
     void setWorldPos(int x, int z);

@@ -5,6 +5,11 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <qdatetime.h>
+#include <blocktypeworker.h>
+#include <vboworker.h>
+#include <QThreadPool>
+#include <thread>
+
 
 MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
@@ -108,6 +113,43 @@ void MyGL::tick() {
     m_currMSecSinceEpoch = QDateTime::currentMSecsSinceEpoch();
 
     m_player.tick(dT, m_inputs);
+
+    // For every terrain generation zone in this radius that does not yet exist in Terrain's m_generatedTerrain,
+    // spawn a thread to fill that zone's Chunks with procedural height field BlockType data.
+    // Check if new Terrain Zene Chunks need to be crasted an populated
+    std::vector<int64_t> terrainNotExpanded = m_terrain.checkExpansion(m_player.getPosition());
+
+    // expected :: 24
+    //std::cout << terrainNotExpanded.size() << std::endl;
+
+//    if (terrainNotExpanded.size() != 0) {
+//        // Spawn worker threads to populate BlockType data in new Chunks
+//        for (unsigned int i = 0; i < terrainNotExpanded.size(); i++) {
+//            BlockTypeWorker *bWorker = new BlockTypeWorker(&m_terrain, terrainNotExpanded.at(i), &m_terrain.mutexChunksWithVBOData);
+//            QThreadPool::globalInstance()->start(bWorker);
+//        }
+
+//        std::cout<<m_terrain.chunksWithOnlyBlockData.size() << std::endl;
+
+//        if (m_terrain.chunksWithOnlyBlockData.size() != 0) {
+//            for (Chunk *c : m_terrain.chunksWithOnlyBlockData) {
+//                VBOWorker *vboWorker = new VBOWorker(&m_terrain,
+//                                                     &m_terrain.chunksWithVBOData,
+//                                                     c,
+//                                                     &m_terrain.mutexChunksWithVBOData);
+//                QThreadPool::globalInstance()->start(vboWorker);
+//            }
+
+//        }
+//        if (m_terrain.chunksWithVBOData.size() != 0) {
+//            for (ChunkVBOData c: m_terrain.chunksWithVBOData) {
+//                c.associated_chunk->sendToGPU(&c.vertex_data, &c.idx_data);
+//            }
+//        }
+//    }
+
+
+
     update(); // Calls paintGL() as part of a larger QOpenGLWidget pipeline
     sendPlayerDataToGUI(); // Updates the info in the secondary window displaying player data
     m_terrain.updateScene(m_player.mcr_position, &m_progLambert); //as player moves, send position to create new a chunk (Elaine 1st)

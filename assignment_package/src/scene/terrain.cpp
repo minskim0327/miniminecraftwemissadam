@@ -110,7 +110,8 @@ void Terrain::setBlockAt(int x, int y, int z, BlockType t)
 //        c->create();
     }
     else {
-        throw std::out_of_range("Coordinates " + std::to_string(x) +
+//        std::cout<<"has no chunk when called setBlockAt" << std::endl;
+        throw std::out_of_range("Coordinates " + std::to_string(floor(x / 16.f) * 16) +
                                 " " + std::to_string(y) + " " +
                                 std::to_string(z) + " have no Chunk!");
     }
@@ -120,6 +121,8 @@ void Terrain::setBlockAt(int x, int y, int z, BlockType t)
 Chunk* Terrain::createChunkAt(int x, int z) {
     uPtr<Chunk> chunk = mkU<Chunk>(mp_context);
     Chunk *cPtr = chunk.get();
+
+//   std::cout << x << ", " << z << std::endl;
     m_chunks[toKey(x, z)] = move(chunk);
     // Set the neighbor pointers of itself and its neighbors
     if(hasChunkAt(x, z + 16)) {
@@ -140,6 +143,7 @@ Chunk* Terrain::createChunkAt(int x, int z) {
     }
     return cPtr;
 }
+
 
 
 //depending on the player's new position, decide whether a new chunk
@@ -418,6 +422,43 @@ float Terrain::interpNoise1D(float x) {
     float v2 = noise1D(intx+1);
     return glm::mix(v1, v2, fractx);
 
+}
+
+
+/***
+ * MileStone 2
+ */
+
+
+// Examines 5 by 5 terrain zone from the current player position
+// Returns relative positions of terrains that need to be created
+std::vector<int64_t> Terrain::checkExpansion(glm::vec3 position) {
+//    std::cout << position.x << ", "
+//              <<position.y << ", "
+//             <<position.z << endl;
+//    std::cout << "<,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,," << std::endl;
+    std::vector<int64_t> output;
+    int lowerLeftX = glm::floor(position.x / 64.0f);
+    int lowerLeftZ = glm::floor(position.z / 64.0f);
+
+    // current terrain location
+    int64_t lowerLeft = toKey(lowerLeftX * 64, lowerLeftZ * 64);
+
+
+    // Check Current
+    for (int r = -2; r <= 2; r++) {
+        for (int c = -2; c <= 2; c++) {
+            int64_t currTerrain = toKey((lowerLeftX + c) * 64, (lowerLeftZ + r) * 64);
+//            std::cout << (lowerLeftX + c) * 64 << ", " <<
+//                          (lowerLeftZ + r) * 64 << std::endl;
+            if (m_generatedTerrain.find(currTerrain) == m_generatedTerrain.end()) {
+                m_generatedTerrain.insert(currTerrain);
+                output.push_back(currTerrain);
+            }
+        }
+    }
+
+    return output;
 }
 
 

@@ -2,6 +2,7 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 SOURCES += \
+    $$PWD/blocktypeworker.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp \
     $$PWD/mygl.cpp \
@@ -16,9 +17,12 @@ SOURCES += \
     $$PWD/scene/player.cpp \
     $$PWD/scene/camera.cpp \
     $$PWD/playerinfo.cpp \
-    $$PWD/scene/chunk.cpp
+    $$PWD/scene/chunk.cpp \
+    $$PWD/vboworker.cpp \
+    $$PWD/worker.cpp
 
 HEADERS += \
+    $$PWD/blocktypeworker.h \
     $$PWD/mainwindow.h \
     $$PWD/mygl.h \
     $$PWD/shaderprogram.h \
@@ -34,4 +38,6 @@ HEADERS += \
     $$PWD/scene/player.h \
     $$PWD/scene/camera.h \
     $$PWD/playerinfo.h \
-    $$PWD/scene/chunk.h
+    $$PWD/scene/chunk.h \
+    $$PWD/vboworker.h \
+    $$PWD/worker.h
