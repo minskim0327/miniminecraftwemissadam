@@ -1,10 +1,10 @@
 #pragma once
-#include "smartpointerhelp.h"
-#include "glm_includes.h"
+#include "src/smartpointerhelp.h"
+#include "src/glm_includes.h"
 #include <array>
 #include <unordered_map>
 #include <cstddef>
-#include "drawable.h"
+#include "src/drawable.h"
 
 
 //using namespace std;
@@ -58,6 +58,25 @@ public:
     //Chunk();
     Chunk(OpenGLContext*);
     void virtual create();
+//    void createVBO(std::vector<glm::vec4>* pos,
+//                   std::vector<glm::vec4>* col,
+//                   std::vector<glm::vec4>* nor,
+//                   std::vector<GLuint>* idx);
+    void createVBO(
+            std::vector<glm::vec4>* posOpq,
+            std::vector<glm::vec4>* norOpq,
+            std::vector<glm::vec2>* uvOpq,
+            std::vector<float> *animOpq,
+            std::vector<GLuint>* idxOpq,
+            std::vector<glm::vec4> *posTran,
+            std::vector<glm::vec4> *norTran,
+            std::vector<glm::vec2> *uvTran,
+            std::vector<float> *animTran,
+            std::vector<GLuint>* idxTran);
+    void sendToGPU(std::vector<float>* allOpq,
+                   std::vector<GLuint>* idxOpq,
+                   std::vector<float>* allTran,
+                   std::vector<GLuint>* idxTran);
     virtual ~Chunk();
     GLenum virtual drawMode();
     void setWorldPos(int x, int z);

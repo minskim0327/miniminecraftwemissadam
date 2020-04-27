@@ -43,6 +43,7 @@ private:
     Texture m_texture;
     int m_time;
 
+    bool isChunksCreated;
 
 public:
     explicit MyGL(QWidget *parent = nullptr);

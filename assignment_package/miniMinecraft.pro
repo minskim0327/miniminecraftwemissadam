@@ -7,7 +7,7 @@ CONFIG += c++1z
 win32 {
     LIBS += -lopengl32
 #    LIBS += -lglut32
-#    LIBS += -lglu32
+ #   LIBS += -lglu32
 }
 CONFIG += warn_on
 CONFIG += debug
