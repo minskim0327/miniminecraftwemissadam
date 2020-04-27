@@ -12,7 +12,7 @@ MyGL::MyGL(QWidget *parent)
       m_progLambert(this), m_progFlat(this),
       m_terrain(this), m_player(glm::vec3(48.f, 129.f, 48.f), m_terrain),
       m_currMSecSinceEpoch(QDateTime::currentMSecsSinceEpoch()),
-     m_texture(this),  m_time(0.f)
+     m_texture(this),  m_time(0.f), mp_progSky(this), mp_geomQuad(this)
 {
     // Connect the timer to a function so that when the timer ticks the function is executed
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(tick()));
@@ -51,6 +51,8 @@ void MyGL::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LINE_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
+    //glPointSize(5);
     // Set the color with which the screen is filled at the start of each render call.
     glClearColor(0.37f, 0.74f, 1.0f, 1);
 
@@ -62,10 +64,15 @@ void MyGL::initializeGL()
     //Create the instance of the world axes
     //m_worldAxes.create();
 
+
     // Create and set up the diffuse shader
     m_progLambert.create(":/glsl/lambert.vert.glsl", ":/glsl/lambert.frag.glsl");
     // Create and set up the flat lighting shader
     m_progFlat.create(":/glsl/flat.vert.glsl", ":/glsl/flat.frag.glsl");
+
+
+    mp_progSky.create(":/glsl/sky.vert.glsl", ":/glsl/sky.frag.glsl");
+    mp_geomQuad.create();
 
     // Set a color with which to draw geometry.
     // This will ultimately not be used when you change
@@ -100,6 +107,12 @@ void MyGL::resizeGL(int w, int h) {
 
     m_progLambert.setViewProjMatrix(viewproj);
     m_progFlat.setViewProjMatrix(viewproj);
+    mp_progSky.setViewProjMatrix(glm::inverse(viewproj));
+
+    mp_progSky.useMe();
+    this->glUniform2i(mp_progSky.unifDimensions, width() * this->devicePixelRatio(), height() * this->devicePixelRatio());
+    this->glUniform3f(mp_progSky.unifEye, m_player.mcr_camera.mcr_position.x, m_player.mcr_camera.mcr_position.y, m_player.mcr_camera.mcr_position.z);
+
 
     printGLErrorLog();
 
@@ -148,6 +161,13 @@ void MyGL::paintGL() {
     m_texture.bind(0);
     m_terrain.setTime(m_time);
     m_time++;
+
+    mp_progSky.setViewProjMatrix(glm::inverse(m_player.mcr_camera.getViewProj()));
+    mp_progSky.useMe();
+    this->glUniform3f(mp_progSky.unifEye, m_player.mcr_camera.mcr_position.x, m_player.mcr_camera.mcr_position.y, m_player.mcr_camera.mcr_position.z);
+    this->glUniform1f(mp_progSky.unifTime, m_time);
+
+    mp_progSky.draw(mp_geomQuad);
 
     renderTerrain();
 

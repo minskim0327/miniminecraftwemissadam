@@ -8,6 +8,7 @@
 #include "scene/terrain.h"
 #include "scene/player.h"
 #include "texture.h"
+#include "scene/quad.h"
 
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
@@ -40,8 +41,14 @@ private:
 
     void sendPlayerDataToGUI() const;
 
+    //Elaine2
     Texture m_texture;
     int m_time;
+
+    //Elaine3
+    ShaderProgram mp_progSky;
+    Quad mp_geomQuad;
+
 
 
 public:
