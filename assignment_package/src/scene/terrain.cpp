@@ -87,14 +87,24 @@ bool Terrain::hasChunkAt(int x, int z) const {
 uPtr<Chunk>& Terrain::getChunkAt(int x, int z) {
     int xFloor = static_cast<int>(glm::floor(x / 16.f));
     int zFloor = static_cast<int>(glm::floor(z / 16.f));
-    return m_chunks[toKey(16 * xFloor, 16 * zFloor)];
+//    return m_chunks[toKey(16 * xFloor, 16 * zFloor)];
+    int64_t key = toKey(16 * xFloor, 16 * zFloor);
+    uPtr<Chunk> &ref = m_chunks[key];
+    if(ref == nullptr) {
+        std::cout << "Got null at " << xFloor << ", " << zFloor << std::endl;
+    }
+    return ref;
 }
 
 
 const uPtr<Chunk>& Terrain::getChunkAt(int x, int z) const {
     int xFloor = static_cast<int>(glm::floor(x / 16.f));
     int zFloor = static_cast<int>(glm::floor(z / 16.f));
-    return m_chunks.at(toKey(16 * xFloor, 16 * zFloor));
+    const uPtr<Chunk> &ref = m_chunks.at(toKey(16 * xFloor, 16 * zFloor));
+    if(ref == nullptr) {
+        std::cout << "Got null at " << xFloor << ", " << zFloor << std::endl;
+    }
+    return ref;
 }
 
 void Terrain::setBlockAt(int x, int y, int z, BlockType t)
@@ -111,19 +121,22 @@ void Terrain::setBlockAt(int x, int y, int z, BlockType t)
     }
     else {
 //        std::cout<<"has no chunk when called setBlockAt" << std::endl;
+        hasChunkAt(x, z);
         throw std::out_of_range("Coordinates " + std::to_string(floor(x / 16.f) * 16) +
                                 " " + std::to_string(y) + " " +
-                                std::to_string(z) + " have no Chunk!");
+                                std::to_string(floor(z / 16.f) * 16) + " have no Chunk!");
     }
 }
 
 
 Chunk* Terrain::createChunkAt(int x, int z) {
+//    std::cout << "Initializing chunk at " << x << ", " << z << std::endl;
     uPtr<Chunk> chunk = mkU<Chunk>(mp_context);
     Chunk *cPtr = chunk.get();
+    chunk->setWorldPos(x, z);
 
 //   std::cout << x << ", " << z << std::endl;
-    m_chunks[toKey(x, z)] = move(chunk);
+    m_chunks[toKey(x, z)] = std::move(chunk);
     // Set the neighbor pointers of itself and its neighbors
     if(hasChunkAt(x, z + 16)) {
         auto &chunkNorth = m_chunks[toKey(x, z + 16)];
@@ -230,10 +243,10 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
         for(int z = minZ; z < maxZ; z += 16) {
             if (hasChunkAt(x, z)) {
                 const uPtr<Chunk> &chunk = getChunkAt(x, z);
-
-                chunk->setWorldPos(x, z);
-                shaderProgram->setModelMatrix(glm::mat4());
-                shaderProgram->drawInterleaved(*chunk);
+                if(chunk->elemCount() != -1) {
+                    shaderProgram->setModelMatrix(glm::mat4());
+                    shaderProgram->drawInterleaved(*chunk);
+                }
             }
         }
     }
@@ -440,9 +453,6 @@ std::vector<int64_t> Terrain::checkExpansion(glm::vec3 position) {
     std::vector<int64_t> output;
     int lowerLeftX = glm::floor(position.x / 64.0f);
     int lowerLeftZ = glm::floor(position.z / 64.0f);
-
-    // current terrain location
-    int64_t lowerLeft = toKey(lowerLeftX * 64, lowerLeftZ * 64);
 
 
     // Check Current

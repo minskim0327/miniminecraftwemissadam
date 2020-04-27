@@ -21,17 +21,17 @@ void Player::processInputs(InputBundle &inputs) {
     // the player is in flight mode
     if (inputs.isFlightMode) {
         if (inputs.wPressed) {
-            m_acceleration = accRate * this->m_forward;
+            m_acceleration = 3 * accRate * this->m_forward;
         } else if (inputs.sPressed) {
-            m_acceleration = -accRate * this->m_forward;
+            m_acceleration = 3 * -accRate * this->m_forward;
         } else if (inputs.dPressed) {
-            m_acceleration = accRate * this->m_right;
+            m_acceleration = 3 * accRate * this->m_right;
         } else if (inputs.aPressed) {
-            m_acceleration = -accRate * this->m_right;
+            m_acceleration = 3 * -accRate * this->m_right;
         } else if (inputs.ePressed) {
-            m_acceleration = accRate * this->m_up;
+            m_acceleration = 3 * accRate * this->m_up;
         } else if (inputs.qPressed) {
-            m_acceleration = -accRate * this->m_up;
+            m_acceleration = 3 * -accRate * this->m_up;
         } else {
             m_velocity = glm::vec3();
             m_acceleration = glm::vec3();
@@ -105,7 +105,7 @@ void Player::setCameraWidthHeight(unsigned int w, unsigned int h) {
 }
 
 void Player::detectCollision(glm::vec3 *rayDirection, const Terrain &terrain) {
-    glm::vec3 bottomLeftVertex = this->m_position - glm::vec3(0.5f, 0.f, -0.5f);
+    glm::vec3 bottomLeftVertex = this->m_position - glm::vec3(0.5f, 0.f, 0.5f);
     //glm::vec3 rayOrigin = this->m_position;
     glm::ivec3 out_blockHit = glm::ivec3();
     float out_dist = 0.f;
