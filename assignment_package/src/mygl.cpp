@@ -252,9 +252,10 @@ void MyGL::paintGL() {
     m_terrain.setTime(m_time);
     m_time++;
 
-    if (isChunksCreated) {
-        renderTerrain();
-    }
+//    if (isChunksCreated) {
+//        renderTerrain();
+//    }
+    renderTerrain();
 
 
     glDisable(GL_DEPTH_TEST);

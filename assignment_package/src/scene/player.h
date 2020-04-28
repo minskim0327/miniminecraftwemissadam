@@ -36,11 +36,7 @@ public:
                    float *out_dist,
                    glm::ivec3 *out_blockHit);
 
-    bool gridMarchTemp(glm::vec3 rayOrigin, int i,
-                   glm::vec3 rayDirection,
-                   const Terrain &terrain,
-                   float *out_dist,
-                   glm::ivec3 *out_blockHit);
+
     // check whether the player is at ground
     bool isOnGroundLevel(const Terrain &terrain, InputBundle &input);
 
