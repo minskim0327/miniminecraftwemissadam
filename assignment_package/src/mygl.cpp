@@ -301,15 +301,17 @@ void MyGL::keyReleaseEvent(QKeyEvent *e) {
 
 void MyGL::mouseMoveEvent(QMouseEvent *e) {
     // For windows
-    //float dx = e->pos().x() - this->width()/2;
-    //float dy = e->pos().y() - this->height()/2;
+    float dx = e->pos().x() - this->width()/2;
+    float dy = e->pos().y() - this->height()/2;
+    m_player.rotateOnUpGlobal(-dx * 360 * 0.0005f);
+    m_player.rotateOnRightLocal(-dy * 360 * 0.0005f);
 
     // For mac
-    float dx = (e->pos().x() - this->width() * 0.5 + this->pos().x()) / (float) width();
-    float dy = (e->pos().y() - this->height() * 0.5 + this->pos().y()) / (float) height();
+//    float dx = (e->pos().x() - this->width() * 0.5 + this->pos().x()) / (float) width();
+//    float dy = (e->pos().y() - this->height() * 0.5 + this->pos().y()) / (float) height();
+//    m_player.rotateOnUpGlobal(-dx * 360 * 0.005f);
+//    m_player.rotateOnRightLocal(-dy * 360 * 0.005f);
 
-    m_player.rotateOnUpGlobal(-dx * 360 * 0.005f);
-    m_player.rotateOnRightLocal(-dy * 360 * 0.005f);
 
     moveMouseToCenter();
 }

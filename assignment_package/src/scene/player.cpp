@@ -251,6 +251,7 @@ bool Player::isOnGroundLevel(const Terrain &terrain, InputBundle &input) {
                                    floor(bottomLeftVertex[2]) + z) != EMPTY) {
 
                 input.isOnGround = true;
+                m_velocity[1] = 0.f;
                 return true;
             }
         }
