@@ -28,7 +28,14 @@ const vec3 dusk[5] = vec3[](vec3(144, 96, 144) / 255.0,
                             vec3(48, 24, 96) / 255.0,
                             vec3(0, 24, 72) / 255.0);
 
+const vec3 midday[5] = vec3[](vec3(0, 24, 72) / 255.0,
+                               vec3(51, 255, 255) / 255.0,
+                               vec3(99, 184, 215) / 255.0,
+                                vec3(49, 71,144) / 255.0,
+                                vec3(44, 49, 65) / 255.0);
+
 const vec3 sunColor = vec3(255, 255, 190) / 255.0;
+//const vec3 middayColor = vec3(0, 0, 1);
 const vec3 cloudColor = sunset[3];
 
 vec2 sphereToUV(vec3 p) {
@@ -78,6 +85,25 @@ vec3 uvToDusk(vec2 uv) {
     return dusk[4];
 }
 
+vec3 uvToMidday(vec2 uv) {
+    if(uv.y < 0.5) {
+        return midday[0];
+    }
+    else if(uv.y < 0.55) {
+        return mix(midday[0], midday[1], (uv.y - 0.5) / 0.05);
+    }
+    else if(uv.y < 0.6) {
+        return mix(midday[1], midday[2], (uv.y - 0.55) / 0.05);
+    }
+    else if(uv.y < 0.65) {
+        return mix(midday[2], midday[3], (uv.y - 0.6) / 0.05);
+    }
+    else if(uv.y < 0.75) {
+        return mix(midday[3], midday[4], (uv.y - 0.65) / 0.1);
+    }
+    return midday[4];
+}
+
 vec2 random2( vec2 p ) {
     return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
 }
@@ -89,6 +115,7 @@ vec3 random3( vec3 p ) {
                  *43758.5453);
 }
 
+//make the sun rotate around x axis depending on the u_Time
 vec3 rotateX(vec3 p, float a) {
     return vec3(p.x, cos(a) * p.y + -sin(a) *p.z, sin(a) * p.y +cos(a) * p.z);
 }
@@ -208,6 +235,7 @@ void main()
     // Compute a gradient from the bottom of the sky-sphere to the top
     vec3 sunsetColor = uvToSunset(uv + offset * 0.1);
     vec3 duskColor = uvToDusk(uv + offset * 0.1);
+    vec3 middayColor = uvToMidday(uv + offset * 0.1);
 
     //outColor = sunsetColor;
 
@@ -215,47 +243,102 @@ void main()
     // Add a glowing sun in the sky
     vec3 sunDir = rotateX(normalize(vec3(0, 0.1, 1.0)), u_Time *0.01);
     vec3 xAxis = vec3(1, 0, 0);
+    vec3 yAxis = vec3(0, 1, 0);
+    bool isAboveTerrain = dot(yAxis, sunDir) > 0;
     float angleBetweenXAxisAndSun = acos(dot(xAxis, sunDir)) * 360.0 / PI;
 
     bool isSunset = angleBetweenXAxisAndSun < 30;
     bool isMidDay = angleBetweenXAxisAndSun > 30 || angleBetweenXAxisAndSun < 100;
     bool isSunrise= angleBetweenXAxisAndSun > 100;
 
-     if (isSunset) {
-
-     }
     float sunSize = 10.0;
     float angle = acos(dot(rayDir, sunDir)) * 360.0 / PI;
-    // If the angle between our ray dir and vector to center of sun
-    // is less than the threshold, then we're looking at the sun
-    if(angle < sunSize) {
-        // Full center of sun
-        if(angle < 7.5) {
-            outColor = vec4(sunColor, 1);
-        }
-        // Corona of sun, mix with sky color
-        else {
-            outColor = vec4(mix(sunColor, sunsetColor, (angle - 7.5) / 22.5), 1);
-        }
-    }
-    // Otherwise our ray is looking into just the sky
-    else {
+
         float raySunDot = dot(rayDir, sunDir);
 #define SUNSET_THRESHOLD 0.75
+#define SUNSET_BETWEEN_MIDDAY 0.6
+#define MIDDAY_THRESHOLD 0.4
+#define DUSK_BETWEEN_MIDDAY 0.2
 #define DUSK_THRESHOLD -0.1
         if(raySunDot > SUNSET_THRESHOLD) {
-            outColor = vec4(sunsetColor, 1);
-            // Do nothing, sky is already correct color
+            if(angle < sunSize) {
+                // Full center of sun
+                if(angle < 7.5) {
+                    outColor = vec4(sunColor, 1);
+                }
+                // Corona of sun, mix with sky color
+                else {
+                    outColor = vec4(mix(sunColor, sunsetColor, (angle - 7.5) / 22.5), 1);
+                }
+            } else {
+                outColor = vec4(sunsetColor, 1);
+            }
+        }
+        else if (raySunDot > SUNSET_BETWEEN_MIDDAY) {
+            if(angle < sunSize) {
+                // Full center of sun
+                if(angle < 7.5) {
+                    outColor = vec4(sunColor, 1);
+                }
+                // Corona of sun, mix with sky color
+                else {
+                    outColor = vec4(mix(sunColor, sunsetColor, (angle - 7.5) / 22.5), 1);
+                }
+            } else {
+                float t = (raySunDot - SUNSET_THRESHOLD) / (MIDDAY_THRESHOLD - SUNSET_THRESHOLD);
+                outColor = vec4(mix(sunsetColor, middayColor, t), 1);
+            }
+
+        }
+        else if (raySunDot > MIDDAY_THRESHOLD) {
+            if(angle < sunSize) {
+                // Full center of sun
+                if(angle < 7.5) {
+                    outColor = vec4(sunColor, 1);
+                }
+                // Corona of sun, mix with sky color
+                else {
+                    outColor = vec4(mix(sunColor, middayColor, (angle - 7.5) / 22.5), 1);
+                }
+            } else {
+                outColor = vec4(middayColor, 1);
+            }
+        }
+        else if (raySunDot > DUSK_BETWEEN_MIDDAY) {
+            if(angle < sunSize) {
+                // Full center of sun
+                if(angle < 7.5) {
+                    outColor = vec4(sunColor, 1);
+                }
+                // Corona of sun, mix with sky color
+                else {
+                    outColor = vec4(mix(sunColor, duskColor, (angle - 7.5) / 22.5), 1);
+                }
+            } else {
+                float t = (raySunDot - MIDDAY_THRESHOLD) / (DUSK_THRESHOLD - MIDDAY_THRESHOLD);
+                outColor = vec4(mix(middayColor, duskColor, t), 1);
+            }
         }
         // Any dot product between 0.75 and -0.1 is a LERP b/t sunset and dusk color
-        else if(raySunDot > DUSK_THRESHOLD) {
-            float t = (raySunDot - SUNSET_THRESHOLD) / (DUSK_THRESHOLD - SUNSET_THRESHOLD);
-            outColor = vec4(mix(sunsetColor, duskColor, t), 1);
-        }
+//        else if(raySunDot > DUSK_THRESHOLD) {
+//            if(angle < sunSize) {
+//                // Full center of sun
+//                if(angle < 7.5) {
+//                    outColor = vec4(sunColor, 1);
+//                }
+//                // Corona of sun, mix with sky color
+//                else {
+//                    outColor = vec4(mix(sunColor, sunsetColor, (angle - 7.5) / 22.5), 1);
+//                }
+//            }
+//            float t = (raySunDot - SUNSET_THRESHOLD) / (DUSK_THRESHOLD - SUNSET_THRESHOLD);
+//            outColor = vec4(mix(sunsetColor, duskColor, t), 1);
+//        }
+
         // Any dot product <= -0.1 are pure dusk color
         else {
             outColor = vec4(duskColor, 1);
         }
-    }
+ //   }
 
 }
