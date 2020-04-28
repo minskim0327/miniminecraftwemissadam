@@ -2,6 +2,7 @@
 #include "cube.h"
 #include <stdexcept>
 #include <iostream>
+#include "river.h"
 
 Terrain::Terrain(OpenGLContext *context)
     : m_chunks(), m_generatedTerrain(), mp_context(context)
@@ -87,14 +88,24 @@ bool Terrain::hasChunkAt(int x, int z) const {
 uPtr<Chunk>& Terrain::getChunkAt(int x, int z) {
     int xFloor = static_cast<int>(glm::floor(x / 16.f));
     int zFloor = static_cast<int>(glm::floor(z / 16.f));
-    return m_chunks[toKey(16 * xFloor, 16 * zFloor)];
+//    return m_chunks[toKey(16 * xFloor, 16 * zFloor)];
+    int64_t key = toKey(16 * xFloor, 16 * zFloor);
+    uPtr<Chunk> &ref = m_chunks[key];
+    if(ref == nullptr) {
+        std::cout << "Got null at " << xFloor << ", " << zFloor << std::endl;
+    }
+    return ref;
 }
 
 
 const uPtr<Chunk>& Terrain::getChunkAt(int x, int z) const {
     int xFloor = static_cast<int>(glm::floor(x / 16.f));
     int zFloor = static_cast<int>(glm::floor(z / 16.f));
-    return m_chunks.at(toKey(16 * xFloor, 16 * zFloor));
+    const uPtr<Chunk> &ref = m_chunks.at(toKey(16 * xFloor, 16 * zFloor));
+    if(ref == nullptr) {
+        std::cout << "Got null at " << xFloor << ", " << zFloor << std::endl;
+    }
+    return ref;
 }
 
 void Terrain::setBlockAt(int x, int y, int z, BlockType t)
@@ -110,17 +121,23 @@ void Terrain::setBlockAt(int x, int y, int z, BlockType t)
 //        c->create();
     }
     else {
-        throw std::out_of_range("Coordinates " + std::to_string(x) +
+//        std::cout<<"has no chunk when called setBlockAt" << std::endl;
+        hasChunkAt(x, z);
+        throw std::out_of_range("Coordinates " + std::to_string(floor(x / 16.f) * 16) +
                                 " " + std::to_string(y) + " " +
-                                std::to_string(z) + " have no Chunk!");
+                                std::to_string(floor(z / 16.f) * 16) + " have no Chunk!");
     }
 }
 
 
 Chunk* Terrain::createChunkAt(int x, int z) {
+//    std::cout << "Initializing chunk at " << x << ", " << z << std::endl;
     uPtr<Chunk> chunk = mkU<Chunk>(mp_context);
     Chunk *cPtr = chunk.get();
-    m_chunks[toKey(x, z)] = move(chunk);
+    chunk->setWorldPos(x, z);
+
+//   std::cout << x << ", " << z << std::endl;
+    m_chunks[toKey(x, z)] = std::move(chunk);
     // Set the neighbor pointers of itself and its neighbors
     if(hasChunkAt(x, z + 16)) {
         auto &chunkNorth = m_chunks[toKey(x, z + 16)];
@@ -142,6 +159,7 @@ Chunk* Terrain::createChunkAt(int x, int z) {
 }
 
 
+
 //depending on the player's new position, decide whether a new chunk
 //should be added to the terrain(Elaine 1st)
 void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
@@ -154,6 +172,9 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
     Chunk* backward  = nullptr;
     Chunk* right  = nullptr;
     Chunk* left  = nullptr;
+    River river = River(this, (int) glm::floor(pos.x / 64.f), (int) glm::floor(pos.z / 64.f));
+    int xpos = (int) glm::floor(pos.x / 64.f);
+    int zpos = (int) glm::floor(pos.z / 64.f);
     if (!hasChunkAt(x, z + 16)) {
         forward = createChunkAt(x, z + 16);
     }
@@ -177,6 +198,8 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
 //                    setBlockAt(i, 128, j, DIRT);
 //                }
                 fillBlock(i, j);
+                if (xpos * zpos % 2 == 0)
+                    river.draw();
             }
         }
         forward->setWorldPos(x, z +16);
@@ -192,6 +215,8 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
 //                    setBlockAt(i, 128, j, DIRT);
 //                }
                 fillBlock(i, j);
+                if (xpos * zpos % 2 == 0)
+                    river.draw();
             }
         }
         backward->setWorldPos(x, z -16);
@@ -201,6 +226,8 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
         for(int i = x +16; i < x + 32; ++i) {
             for(int j = z; j < z + 16; ++j) {
                 fillBlock(i, j);
+                if (xpos * zpos % 2 == 0)
+                    river.draw();
             }
         }
         right->setWorldPos(x +16, z);
@@ -210,11 +237,14 @@ void Terrain::updateScene(glm::vec3 pos, ShaderProgram *shaderProgram) {
         for(int i = x -16; i < x; ++i) {
             for(int j = z; j < z + 16; ++j) {
                 fillBlock(i, j);
+                if (xpos * zpos % 2 == 0)
+                    river.draw();
             }
         }
         left->setWorldPos(x -16, z);
         left->create();
     }
+
 }
 
 void Terrain::setTime(int t) {
@@ -230,10 +260,13 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
         for(int z = minZ; z < maxZ; z += 16) {
             if (hasChunkAt(x, z)) {
                 const uPtr<Chunk> &chunk = getChunkAt(x, z);
+                if(chunk->elemCountOpq() > 0) {
+                    //<<<<<<< HEAD
 
-                chunk->setWorldPos(x, z);
-                shaderProgram->setModelMatrix(glm::mat4());
-                shaderProgram->drawInterleaved(*chunk, 0, 0, time);
+                    chunk->setWorldPos(x, z);
+                    shaderProgram->setModelMatrix(glm::mat4());
+                    shaderProgram->drawInterleaved(*chunk, 0, 0, time);
+                }
 
             }
         }
@@ -242,10 +275,17 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
         for(int z = minZ; z < maxZ; z += 16) {
             if (hasChunkAt(x, z)) {
                 const uPtr<Chunk> &chunk = getChunkAt(x, z);
-
-                chunk->setWorldPos(x, z);
-                shaderProgram->setModelMatrix(glm::mat4());
-                shaderProgram->drawInterleaved(*chunk, 0, 1, time);
+                if(chunk->elemCountTran() > 0) {
+                    chunk->setWorldPos(x, z);
+                    shaderProgram->setModelMatrix(glm::mat4());
+                    shaderProgram->drawInterleaved(*chunk, 0, 1, time);
+                }
+//=======
+//                if(chunk->elemCount() != -1) {
+//                    shaderProgram->setModelMatrix(glm::mat4());
+//                    shaderProgram->drawInterleaved(*chunk);
+//                }
+////>>>>>>> minskimMS2
             }
         }
     }
@@ -278,26 +318,19 @@ void Terrain::CreateTestScene()
     // now exists.
     m_generatedTerrain.insert(toKey(0, 0));
 
+
     // Create the basic terrain floor
     for(int x = 0; x < 64; ++x) {
         for(int z = 0; z < 64; ++z) {
             fillBlock(x, z);
         }
     }
-    // Add "walls" for collision testing
-//    for(int x = 0; x < 64; ++x) {
-//        setBlockAt(x, 129, 0, GRASS);
-//        setBlockAt(x, 130, 0, GRASS);
-//        setBlockAt(x, 129, 63, GRASS);
-//        setBlockAt(0, 130, x, GRASS);
-//    }
-//    // Add a central column
-//    for(int y = 129; y < 140; ++y) {
-//        setBlockAt(32, y, 32, GRASS);
-//    }
+    River river = River(this, 0, 0);
+   // river.draw();
 
     //create chunk vbo data (Elaine 1st)
     createChunks(0, 64, 0, 64);
+
 
 }
 
@@ -374,7 +407,7 @@ float Terrain::surflet(glm::vec2 p, glm::vec2 gridPoint) {
 
 int Terrain::getGrasslandHeight(int x, int z) {
     float worley = worleyNoise(glm::vec2(x / 64.f, z / 64.f));
-    return 129 + (worley) * 127 / 2;
+    return 129 + (worley) * 127 / 2 + 5;
 }
 
 int Terrain::getMountainHeight(int x, int z) {
@@ -434,6 +467,40 @@ float Terrain::interpNoise1D(float x) {
     float v2 = noise1D(intx+1);
     return glm::mix(v1, v2, fractx);
 
+}
+
+
+/***
+ * MileStone 2
+ */
+
+
+// Examines 5 by 5 terrain zone from the current player position
+// Returns relative positions of terrains that need to be created
+std::vector<int64_t> Terrain::checkExpansion(glm::vec3 position) {
+//    std::cout << position.x << ", "
+//              <<position.y << ", "
+//             <<position.z << endl;
+//    std::cout << "<,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,," << std::endl;
+    std::vector<int64_t> output;
+    int lowerLeftX = glm::floor(position.x / 64.0f);
+    int lowerLeftZ = glm::floor(position.z / 64.0f);
+
+
+    // Check Current
+    for (int r = -2; r <= 2; r++) {
+        for (int c = -2; c <= 2; c++) {
+            int64_t currTerrain = toKey((lowerLeftX + c) * 64, (lowerLeftZ + r) * 64);
+//            std::cout << (lowerLeftX + c) * 64 << ", " <<
+//                          (lowerLeftZ + r) * 64 << std::endl;
+            if (m_generatedTerrain.find(currTerrain) == m_generatedTerrain.end()) {
+                m_generatedTerrain.insert(currTerrain);
+                output.push_back(currTerrain);
+            }
+        }
+    }
+
+    return output;
 }
 
 

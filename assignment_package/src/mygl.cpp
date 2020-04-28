@@ -1,10 +1,14 @@
 #include "mygl.h"
-#include <glm_includes.h>
-
+#include "src/glm_includes.h"
 #include <iostream>
 #include <QApplication>
 #include <QKeyEvent>
 #include <qdatetime.h>
+#include "src/blocktypeworker.h"
+#include "src/vboworker.h"
+#include <QThreadPool>
+#include <thread>
+
 
 MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
@@ -12,7 +16,8 @@ MyGL::MyGL(QWidget *parent)
       m_progLambert(this), m_progFlat(this),
       m_terrain(this), m_player(glm::vec3(48.f, 129.f, 48.f), m_terrain),
       m_currMSecSinceEpoch(QDateTime::currentMSecsSinceEpoch()),
-     m_texture(this),  m_time(0.f), mp_progSky(this), mp_geomQuad(this)
+     m_texture(this),  m_time(0.f), mp_progSky(this), mp_geomQuad(this),
+     isChunksCreated(false)
 {
     // Connect the timer to a function so that when the timer ticks the function is executed
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(tick()));
@@ -91,10 +96,55 @@ void MyGL::initializeGL()
     m_texture.create(":/textures/minecraft_textures_all.png");
     m_texture.load(0);
 
-    m_terrain.CreateTestScene();
+
+//    std::vector<int64_t> terrainNotExpanded = m_terrain.checkExpansion(m_player.getPosition());
+
+//    // expected :: 24
+//    //std::cout << terrainNotExpanded.size() << std::endl;
+
+//    // Spawn worker threads to populate BlockType data in new Chunks
+//    std::vector<std::vector<Chunk*>> terrainsChunk;
+//    for (unsigned int i = 0; i < terrainNotExpanded.size(); i++) {
+//        std::vector<Chunk*> localChunks;
+//        for (int x = 0; x < 4; x++) {
+//            for (int z = 0; z < 4; z++) {
+//                glm:: ivec2 tz_coords = toCoords(terrainNotExpanded.at(i));
+//                Chunk* c = m_terrain.createChunkAt(tz_coords.x + 16 * x, tz_coords.y + 16 * z);
+//                localChunks.push_back(c);
+//            }
+//        }
+//        terrainsChunk.push_back(localChunks);
+//    }
+
+//    for (unsigned int i = 0; i < terrainNotExpanded.size(); i++) {
+//        BlockTypeWorker *bWorker = new BlockTypeWorker(&m_terrain, terrainNotExpanded.at(i), terrainsChunk[i], &m_terrain.chunksWithOnlyBlockData, &m_terrain.mutexWithOnlyBlockData);
+//        QThreadPool::globalInstance()->start(bWorker);
+//    }
+
+//    //std::cout<<m_terrain.chunksWithOnlyBlockData.size() << std::endl;
+
+//    std::cout<<"checkpoint"<<std::endl;
+//    m_terrain.mutexWithOnlyBlockData.lock();
+//    for (Chunk *c : m_terrain.chunksWithOnlyBlockData) {
+//        std::cout<<"checkpoint"<<std::endl;
+//        VBOWorker *vboWorker = new VBOWorker(&m_terrain,
+//                                             &m_terrain.chunksWithVBOData,
+//                                             c,
+//                                             &m_terrain.mutexChunksWithVBOData);
+//        QThreadPool::globalInstance()->start(vboWorker);
+//    }
+//    m_terrain.chunksWithOnlyBlockData.clear();
+//    m_terrain.mutexWithOnlyBlockData.unlock();
+
+//    m_terrain.mutexChunksWithVBOData.lock();
+//    for (ChunkVBOData c: m_terrain.chunksWithVBOData) {
+//        c.associated_chunk->sendToGPU(&c.vertex_opq_data, &c.idx_opq_data,
+//                                      &c.vertex_tran_data, &c.idx_tran_data);
+//    }
+//    m_terrain.chunksWithVBOData.clear();
+//    m_terrain.mutexChunksWithVBOData.unlock();
+    //m_terrain.CreateTestScene();
     //m_terrain.updateScene(m_player.mcr_position);
-
-
 }
 
 void MyGL::resizeGL(int w, int h) {
@@ -129,9 +179,61 @@ void MyGL::tick() {
     m_currMSecSinceEpoch = QDateTime::currentMSecsSinceEpoch();
 
     m_player.tick(dT, m_inputs);
+
+    // For every terrain generation zone in this radius that does not yet exist in Terrain's m_generatedTerrain,
+    // spawn a thread to fill that zone's Chunks with procedural height field BlockType data.
+    // Check if new Terrain Zene Chunks need to be crasted an populated
+    std::vector<int64_t> terrainNotExpanded = m_terrain.checkExpansion(m_player.getPosition());
+
+    // expected :: 24
+    //std::cout << terrainNotExpanded.size() << std::endl;
+
+    // Spawn worker threads to populate BlockType data in new Chunks
+    std::vector<std::vector<Chunk*>> terrainsChunk;
+    for (unsigned int i = 0; i < terrainNotExpanded.size(); i++) {
+        std::vector<Chunk*> localChunks;
+        for (int x = 0; x < 4; x++) {
+            for (int z = 0; z < 4; z++) {
+                glm:: ivec2 tz_coords = toCoords(terrainNotExpanded.at(i));
+                Chunk* c = m_terrain.createChunkAt(tz_coords.x + 16 * x, tz_coords.y + 16 * z);
+                localChunks.push_back(c);
+            }
+        }
+        terrainsChunk.push_back(localChunks);
+    }
+
+    for (unsigned int i = 0; i < terrainNotExpanded.size(); i++) {
+        BlockTypeWorker *bWorker = new BlockTypeWorker(&m_terrain, terrainNotExpanded.at(i), terrainsChunk[i], &m_terrain.chunksWithOnlyBlockData, &m_terrain.mutexWithOnlyBlockData);
+        QThreadPool::globalInstance()->start(bWorker);
+    }
+
+    //std::cout<<m_terrain.chunksWithOnlyBlockData.size() << std::endl;
+
+    //std::cout<<"checkpoint"<<std::endl;
+    m_terrain.mutexWithOnlyBlockData.lock();
+    for (Chunk *c : m_terrain.chunksWithOnlyBlockData) {
+       // std::cout<<"checkpoint"<<std::endl;
+        VBOWorker *vboWorker = new VBOWorker(&m_terrain,
+                                             &m_terrain.chunksWithVBOData,
+                                             c,
+                                             &m_terrain.mutexChunksWithVBOData);
+        QThreadPool::globalInstance()->start(vboWorker);
+    }
+    m_terrain.chunksWithOnlyBlockData.clear();
+    m_terrain.mutexWithOnlyBlockData.unlock();
+
+    m_terrain.mutexChunksWithVBOData.lock();
+    for (ChunkVBOData c: m_terrain.chunksWithVBOData) {
+        c.associated_chunk->sendToGPU(&c.vertex_opq_data, &c.idx_opq_data,
+                                      &c.vertex_tran_data, &c.idx_tran_data);
+    }
+    m_terrain.chunksWithVBOData.clear();
+    m_terrain.mutexChunksWithVBOData.unlock();
+
+    isChunksCreated = true;
     update(); // Calls paintGL() as part of a larger QOpenGLWidget pipeline
     sendPlayerDataToGUI(); // Updates the info in the secondary window displaying player data
-    m_terrain.updateScene(m_player.mcr_position, &m_progLambert); //as player moves, send position to create new a chunk (Elaine 1st)
+    //    m_terrain.updateScene(m_player.mcr_position, &m_progLambert); //as player moves, send position to create new a chunk (Elaine 1st)
 }
 
 void MyGL::sendPlayerDataToGUI() const {
@@ -150,6 +252,7 @@ void MyGL::sendPlayerDataToGUI() const {
 // MyGL's constructor links update() to a timer that fires 60 times per second,
 // so paintGL() called at a rate of 60 frames per second.
 void MyGL::paintGL() {
+    //std::cout<<"1"<<std::endl;;
     // Clear the screen so that we only see newly drawn images
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -162,11 +265,11 @@ void MyGL::paintGL() {
     m_terrain.setTime(m_time);
     m_time++;
 
+    //elaine3 day and night
     mp_progSky.setViewProjMatrix(glm::inverse(m_player.mcr_camera.getViewProj()));
     mp_progSky.useMe();
     this->glUniform3f(mp_progSky.unifEye, m_player.mcr_camera.mcr_position.x, m_player.mcr_camera.mcr_position.y, m_player.mcr_camera.mcr_position.z);
     this->glUniform1f(mp_progSky.unifTime, m_time);
-
     mp_progSky.draw(mp_geomQuad);
 
     renderTerrain();
@@ -182,25 +285,16 @@ void MyGL::paintGL() {
 // terrain that surround the player (refer to Terrain::m_generatedTerrain
 // for more info) (Elaine 1st)
 void MyGL::renderTerrain() {
-    int minx = 0;
-    int maxx = 64;
-    int minz = 0;
-    int maxz = 64;
 
+    int currX = glm::floor(m_player.mcr_position.x / 64.f) * 64;
+    int minX = currX - 128;
+    int maxX = currX + 128;
+    int currZ = glm::floor(m_player.mcr_position.z / 64.f) * 64;
+    int minZ = currZ - 128;
+    int maxZ = currZ + 128;
     //depending on the player's position, render terrain including a new chunk
-    if (m_player.mcr_position.x < 0) {
-        minx = m_player.mcr_position.x;
-    }
-    if (m_player.mcr_position.x > 64) {
-        maxx = m_player.mcr_position.x;
-    }
-    if (m_player.mcr_position.z < 0) {
-        minz = m_player.mcr_position.z;
-    }
-    if (m_player.mcr_position.z > 64) {
-        maxz = m_player.mcr_position.z;
-    }
-    m_terrain.draw(minx, maxx, minz, maxx, &m_progLambert);
+
+   m_terrain.draw(minX, maxX, minZ, maxZ, &m_progLambert);
 }
 
 // construct an inputbundle in keypress event with appropriate info

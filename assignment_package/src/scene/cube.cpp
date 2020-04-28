@@ -1,5 +1,5 @@
 #include "cube.h"
-#include <glm_includes.h>
+#include <src/glm_includes.h>
 #include <iostream>
 
 static const int CUB_IDX_COUNT = 36;

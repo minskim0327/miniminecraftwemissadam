@@ -24,6 +24,8 @@ public:
 
     void tick(float dT, InputBundle &input) override;
 
+    // get current players position
+    glm::vec3 getPosition();
     // check collision for a body
     void detectCollision(glm::vec3 *displacement, const Terrain &terrain);
 

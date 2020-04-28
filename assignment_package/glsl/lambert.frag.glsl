@@ -85,7 +85,7 @@ float fbm(vec3 p) {
 void main()
 {
 
-
+    //if water or lava, it animates by changing uv slightly
     vec2 uv = fs_UV;
         if (fs_animate != 0.0f) {
             if (fs_Nor[0] != 0.0f || fs_Nor[2] != 0.0f) {
@@ -95,10 +95,12 @@ void main()
             }
         }
 
-    vec3 sunDir = rotateX(lightDir.xyz, u_Time * 0.01);
+    //day and night light
+    vec3 sunDir = rotateX(lightDir.xyz, u_Time * 0.05);
     vec3 diffuseLight = vec3(dot(normalize(fs_Nor), vec4(normalize(sunDir), 0.0)));
     diffuseLight = clamp(diffuseLight, 0, 1) * vec3(255, 255, 190) / 255.0;
     vec4 diffuseColor = texture(u_Texture, uv);
     vec3 ambientLight = vec3(0.5) * vec3(144, 96, 144) /255.0;
+
     out_Col = vec4(diffuseLight + ambientLight, 1) * diffuseColor;
 }

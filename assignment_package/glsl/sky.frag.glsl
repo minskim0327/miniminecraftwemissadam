@@ -239,7 +239,7 @@ void main()
     vec3 zAxis = vec3(0, 0, 1);
 
     // Add a glowing sun in the sky
-    vec3 sunDir = normalize(rotateX(normalize(vec3(0, 0, -1.0)), u_Time *0.01));
+    vec3 sunDir = normalize(rotateX(normalize(vec3(0, 0, -1.0)), u_Time *0.05));
 
     float sunSize = 30.0;
     float angle = (acos(dot(rayDir, sunDir)) * 360.0 / PI);

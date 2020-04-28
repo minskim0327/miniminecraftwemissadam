@@ -2,10 +2,14 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 SOURCES += \
+    $$PWD/blocktypeworker.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp \
     $$PWD/mygl.cpp \
     $$PWD/scene/quad.cpp \
+    $$PWD/scene/river.cpp \
+    $$PWD/scene/turtle.cpp \
+    $$PWD/npc.cpp \
     $$PWD/shaderprogram.cpp \
     $$PWD/drawable.cpp \
     $$PWD/cameracontrolshelp.cpp \
@@ -18,12 +22,18 @@ SOURCES += \
     $$PWD/scene/camera.cpp \
     $$PWD/playerinfo.cpp \
     $$PWD/scene/chunk.cpp \
-    $$PWD/texture.cpp
+    $$PWD/texture.cpp \
+    $$PWD/vboworker.cpp \
+    $$PWD/worker.cpp
 
 HEADERS += \
+    $$PWD/blocktypeworker.h \
     $$PWD/mainwindow.h \
     $$PWD/mygl.h \
     $$PWD/scene/quad.h \
+    $$PWD/scene/river.h \
+    $$PWD/scene/turtle.h \
+    $$PWD/npc.h \
     $$PWD/shaderprogram.h \
     $$PWD/drawable.h \
     $$PWD/cameracontrolshelp.h \
@@ -38,4 +48,6 @@ HEADERS += \
     $$PWD/scene/camera.h \
     $$PWD/playerinfo.h \
     $$PWD/scene/chunk.h \
-    $$PWD/texture.h
+    $$PWD/texture.h \
+    $$PWD/vboworker.h \
+    $$PWD/worker.h

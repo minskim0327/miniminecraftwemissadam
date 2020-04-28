@@ -1,7 +1,7 @@
 #pragma once
 
-#include "drawable.h"
-#include <glm_includes.h>
+#include "src/drawable.h"
+#include "src/glm_includes.h"
 
 #include <QOpenGLContext>
 #include <QOpenGLBuffer>

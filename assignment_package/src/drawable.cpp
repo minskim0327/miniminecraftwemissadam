@@ -2,8 +2,9 @@
 #include <glm_includes.h>
 
 Drawable::Drawable(OpenGLContext* context)
-    : m_bufAllOpaque(), m_bufAllTransparent(), m_bufIdxOpq(), m_bufIdxTran(),
-      m_idxOpqGenerated(false), m_idxTranGenerated(false),
+    : m_count(-1), m_bufIdx(), m_bufPos(), m_bufNor(), m_bufCol(), m_bufAllOpaque(), m_bufAllTransparent(),
+      m_bufIdxOpq(), m_bufIdxTran(), m_idxGenerated(), m_posGenerated(), m_norGenerated(), m_colGenerated(),
+      m_idxOpqGenerated(false), m_idxTranGenerated(false), m_count_opq(-1), m_count_tran(-1),
       m_allOpaqueGenerated(false), m_allTransparentGenerated(false),
       mp_context(context)
 {}

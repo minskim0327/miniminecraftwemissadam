@@ -1,5 +1,5 @@
 #pragma once
-#include "glm_includes.h"
+#include <src/glm_includes.h>
 
 struct InputBundle {
     bool wPressed, aPressed, sPressed, dPressed;

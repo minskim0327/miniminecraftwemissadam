@@ -50,6 +50,7 @@ private:
     Quad mp_geomQuad;
 
 
+    bool isChunksCreated;
 
 public:
     explicit MyGL(QWidget *parent = nullptr);
