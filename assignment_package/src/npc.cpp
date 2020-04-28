@@ -30,7 +30,7 @@ void NPC::updatePhysicsInfo() {
 void NPC::processMovement(float dT) {
     glm::vec3 rayDirection = m_velocity * dT;
     detectCollision(&rayDirection, mcr_terrain);
-    m_m_position += rayDirection;
+    m_position += rayDirection;
 }
 
 void NPC::assigneDirection(int direction) {
@@ -51,7 +51,7 @@ void NPC::assigneDirection(int direction) {
 }
 
 void NPC::detectCollision(glm::vec3 *rayDirection, const Terrain &terrain) {
-      glm::vec3 bottomLeftVertex = this->m_m_position - glm::vec3(0.5f, 0.f, 0.5f);
+      glm::vec3 bottomLeftVertex = this->m_position - glm::vec3(0.5f, 0.f, 0.5f);
       //glm::vec3 rayOrigin = this->m_m_position;
       glm::ivec3 out_blockHit = glm::ivec3();
       float out_dist = 0.f;
@@ -65,7 +65,7 @@ void NPC::detectCollision(glm::vec3 *rayDirection, const Terrain &terrain) {
                   }
                   if (gridMarch(rayOrigin, *rayDirection, terrain, &out_dist, &out_blockHit)) {
                       //*rayDirection = (out_dist - 0.005f) * glm::normalize(*rayDirection);
-                      float distance = glm::min(out_dist - 0.005f, glm::abs(glm::length(this->m_m_position - glm::vec3(out_blockHit))));
+                      float distance = glm::min(out_dist - 0.005f, glm::abs(glm::length(this->m_position - glm::vec3(out_blockHit))));
                       *rayDirection = distance * glm::normalize(*rayDirection);
                   }
               }
@@ -126,7 +126,7 @@ bool NPC::gridMarch(glm::vec3 rayOrigin, glm::vec3 rayDirection, const Terrain &
 
 bool NPC::isOnGroundLevel(const Terrain &terrain) {
 
-    glm::vec3 bottomLeftVertex = this->m_m_position - glm::vec3(0.5f, 0.f, 0.5f);
+    glm::vec3 bottomLeftVertex = this->m_position - glm::vec3(0.5f, 0.f, 0.5f);
     for (int x = 0; x <= 1; x++) {
         for (int z = 0; z <= 1; z++) {
             if (terrain.getBlockAt(floor(bottomLeftVertex[0]) + x,
@@ -387,7 +387,7 @@ void NPC::createVBO(std::vector<GLuint> *idx, std::vector<glm::vec4> *pos_nor_uv
         tex.x -= 1.0f / 16.0f;
 
         /// add back left leg vertices
-        vec2 legTexture = glm::vec2(30, 39) * (1 / 256.0f);
+        glm::vec2 legTexture = glm::vec2(30, 39) * (1 / 256.0f);
         // add front
         pos_nor_uv->push_back(glm::vec4(m_position.x - 0.75f, m_position.y - 0.5f, m_position.z - 1.0f, 1));
         pos_nor_uv->push_back(glm::vec4(0, 0, -1, 0));
