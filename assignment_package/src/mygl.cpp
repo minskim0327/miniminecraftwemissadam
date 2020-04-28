@@ -192,7 +192,6 @@ void MyGL::tick() {
     std::vector<int64_t> terrainNotExpanded = m_terrain.checkExpansion(m_player.getPosition());
 
     // expected :: 24
-    //std::cout << terrainNotExpanded.size() << std::endl;
 
     // Spawn worker threads to populate BlockType data in new Chunks
     std::vector<std::vector<Chunk*>> terrainsChunk;
@@ -282,7 +281,7 @@ void MyGL::paintGL() {
 
     renderTerrain();
 
-//    mp_NPC->destroy();
+    mp_NPC->destroy();
 //    mp_NPC->create();
 //    m_progLambert.setModelMatrix(glm::mat4());
 

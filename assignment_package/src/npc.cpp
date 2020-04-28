@@ -1,7 +1,7 @@
 #include "npc.h"
 
 NPC::NPC(const Terrain &terrain, OpenGLContext *context)
-    : Drawable(context), mcr_terrain(terrain), ifAxis(-1)
+    : Drawable(context), mcr_terrain(terrain), ifAxis(-1), isOnGround(false), isCollision(false)
 {
 }
 
@@ -17,27 +17,27 @@ void NPC::updatePhysicsInfo() {
     // decide the new velocity randomly if a collision happens
     // the npc should be able to randomly jump/change direction
     // to be called from
-//    int action;
-//    if (!isOnGround) {
-//        m_velocity = glm::vec3(0.f, -30.f, 0.f);
-//    }
+    int action;
+    if (!isOnGround) {
+        m_velocity = glm::vec3(0.f, -30.f, 0.f);
+    }
 
-//    if (isCollision) {
-//        //TODO : make the NPC jump
-//        m_velocity += glm::vec3(0.f, 10.f, 0.f);
+    if (isCollision) {
+        //TODO : make the NPC jump
+        m_velocity += glm::vec3(0.f, 10.f, 0.f);
 
-//    } else {
-//        // TODO : randomly switch direction
-//        // try to prevent the npc from switching the direciton too often
-//        action = setRandomMovement();
-//        assigneDirection(action);
-//    }
+    } else {
+        // TODO : randomly switch direction
+        // try to prevent the npc from switching the direciton too often
+        action = setRandomMovement();
+        assigneDirection(action);
+    }
 }
 
 void NPC::processMovement(float dT) {
-//    glm::vec3 rayDirection = m_velocity * dT;
-//    detectCollision(&rayDirection, mcr_terrain);
-//    m_position += rayDirection;
+    glm::vec3 rayDirection = m_velocity * dT;
+    detectCollision(&rayDirection, mcr_terrain);
+    m_position += rayDirection;
 }
 
 void NPC::assigneDirection(int direction) {
@@ -307,110 +307,6 @@ void NPC::createTestVBO(std::vector<GLuint> *idx,
     anim->push_back(0);
     anim->push_back(0);
     anim->push_back(0);
-//    pos->push_back(glm::vec4(m_position.x - 0.5f, m_position.y, m_position.z + 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x - 0.5f, m_position.y, m_position.z + 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x - 0.5f, m_position.y, m_position.z + 0.5f, 1));
-//    nor->push_back(glm::vec4(0, 0, 1, 0));
-//    nor->push_back(glm::vec4(0, -1, 0, 0));
-//    nor->push_back(glm::vec4(-1, 0, 0, 0));
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    anim->push_back(0);
-//    anim->push_back(0);
-//    anim->push_back(0);
-
-//    pos->push_back(glm::vec4(m_position.x + 0.5f, m_position.y, m_position.z + 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x + 0.5f, m_position.y, m_position.z + 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x + 0.5f, m_position.y, m_position.z + 0.5f, 1));
-//    nor->push_back(glm::vec4(0, 0, 1, 0));
-//    nor->push_back(glm::vec4(0, -1, 0, 0));
-//    nor->push_back(glm::vec4(1, 0, 0, 0));
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    anim->push_back(0);
-//    anim->push_back(0);
-//    anim->push_back(0);
-
-//    pos->push_back(glm::vec4(m_position.x + 0.5f, m_position.y, m_position.z - 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x + 0.5f, m_position.y, m_position.z - 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x + 0.5f, m_position.y, m_position.z - 0.5f, 1));
-//    nor->push_back(glm::vec4(0, 0, -1, 0));
-//    nor->push_back(glm::vec4(0, -1, 0, 0));
-//    nor->push_back(glm::vec4(1, 0, 0, 0));
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    anim->push_back(0);
-//    anim->push_back(0);
-//    anim->push_back(0);
-
-//    pos->push_back(glm::vec4(m_position.x - 0.5f, m_position.y, m_position.z - 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x - 0.5f, m_position.y, m_position.z - 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x - 0.5f, m_position.y, m_position.z - 0.5f, 1));
-//    nor->push_back(glm::vec4(0, 0, -1, 0));
-//    nor->push_back(glm::vec4(0, -1, 0, 0));
-//    nor->push_back(glm::vec4(-1, 0, 0, 0));
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    anim->push_back(0);
-//    anim->push_back(0);
-//    anim->push_back(0);
-
-//    pos->push_back(glm::vec4(m_position.x - 0.5f, m_position.y + 1.f, m_position.z + 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x - 0.5f, m_position.y + 1.f, m_position.z + 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x - 0.5f, m_position.y + 1.f, m_position.z + 0.5f, 1));
-//    nor->push_back(glm::vec4(0, 0, 1, 0));
-//    nor->push_back(glm::vec4(0, 1, 0, 0));
-//    nor->push_back(glm::vec4(-1, 0, 0, 0));
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    anim->push_back(0);
-//    anim->push_back(0);
-//    anim->push_back(0);
-
-//    pos->push_back(glm::vec4(m_position.x + 0.5f, m_position.y + 1.f, m_position.z + 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x + 0.5f, m_position.y + 1.f, m_position.z + 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x + 0.5f, m_position.y + 1.f, m_position.z + 0.5f, 1));
-//    nor->push_back(glm::vec4(0, 0, 1, 0));
-//    nor->push_back(glm::vec4(0, 1, 0, 0));
-//    nor->push_back(glm::vec4(1, 0, 0, 0));
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    anim->push_back(0);
-//    anim->push_back(0);
-//    anim->push_back(0);
-
-//    pos->push_back(glm::vec4(m_position.x + 0.5f, m_position.y + 1.f, m_position.z - 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x + 0.5f, m_position.y + 1.f, m_position.z - 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x + 0.5f, m_position.y + 1.f, m_position.z - 0.5f, 1));
-//    nor->push_back(glm::vec4(0, 0, -1, 0));
-//    nor->push_back(glm::vec4(0, 1, 0, 0));
-//    nor->push_back(glm::vec4(1, 0, 0, 0));
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    anim->push_back(0);
-//    anim->push_back(0);
-//    anim->push_back(0);
-
-//    pos->push_back(glm::vec4(m_position.x - 0.5f, m_position.y + 1.f, m_position.z - 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x - 0.5f, m_position.y + 1.f, m_position.z - 0.5f, 1));
-//    pos->push_back(glm::vec4(m_position.x - 0.5f, m_position.y + 1.f, m_position.z - 0.5f, 1));
-//    nor->push_back(glm::vec4(0, 0, -1, 0));
-//    nor->push_back(glm::vec4(0, 1, 0, 0));
-//    nor->push_back(glm::vec4(-1, 0, 0, 0));
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    uv->push_back(tex);
-//    anim->push_back(0);
-//    anim->push_back(0);
-//    anim->push_back(0);
-
 }
 
 void NPC::interleaveVBO(std::vector<glm::vec4> *pos,
@@ -434,16 +330,6 @@ void NPC::interleaveVBO(std::vector<glm::vec4> *pos,
     }
 }
 void NPC::createVBO(std::vector<GLuint> *idx, std::vector<glm::vec4> *pos_nor_uv) {
-    // simple case
-//    for (int i = 0; i < 8; i++) {
-//        idx->push_back(i * 4);
-//        idx->push_back(i * 4 + 1);
-//        idx->push_back(i * 4 + 2);
-//        idx->push_back(i * 4 + 1);
-//        idx->push_back(i * 4 + 2);
-//        idx->push_back(i * 4 + 3);
-//    }
-//    m_count = idx->size();
 
     for(int i = 0; i < 36; i++){
         idx->push_back(i*4);
