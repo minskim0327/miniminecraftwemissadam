@@ -70,7 +70,7 @@ void MyGL::initializeGL()
     glGenVertexArrays(1, &vao);
 
     //Create the instance of the world axes
-    //m_worldAxes.create();
+    m_worldAxes.create();
 
     // Create and set up the diffuse shader
     m_progLambert.create(":/glsl/lambert.vert.glsl", ":/glsl/lambert.frag.glsl");
@@ -263,6 +263,9 @@ void MyGL::paintGL() {
         renderTerrain();
     }
 
+//    mp_NPC->destroy();
+//    mp_NPC->create();
+//    m_progLambert.setModelMatrix(glm::mat4());
 
     glDisable(GL_DEPTH_TEST);
     m_progFlat.setModelMatrix(glm::mat4());
