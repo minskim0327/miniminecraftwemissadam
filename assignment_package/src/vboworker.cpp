@@ -59,7 +59,7 @@ void VBOWorker::run() {
         vboData.vertex_opq_data.push_back(animOpq.at(i));
     }
 
-    for (unsigned int i = 0; i < posOpq.size(); ++i) {
+    for (unsigned int i = 0; i < posTran.size(); ++i) {
         vboData.vertex_tran_data.push_back(posTran.at(i)[0]);
         vboData.vertex_tran_data.push_back(posTran.at(i)[1]);
         vboData.vertex_tran_data.push_back(posTran.at(i)[2]);

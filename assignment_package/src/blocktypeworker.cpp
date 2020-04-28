@@ -30,7 +30,7 @@ void BlockTypeWorker::createChunksInTerrain() {
              mp_terrain->fillBlock(i, j);
              }
              catch(std::out_of_range &e) {
-                 std::cout << "asdfafasdf";
+                 std::cout << "out of range in blocktypeworker";
              }
          }
      }
@@ -38,7 +38,6 @@ void BlockTypeWorker::createChunksInTerrain() {
     mp_mutex->lock();
 
 
-    std::cout<<"reac" << std::endl;
     for (Chunk *c : terrainsChunk) {
          mp_terrain->chunksWithOnlyBlockData.push_back(c);
     }

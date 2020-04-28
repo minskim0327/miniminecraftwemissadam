@@ -260,11 +260,13 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
         for(int z = minZ; z < maxZ; z += 16) {
             if (hasChunkAt(x, z)) {
                 const uPtr<Chunk> &chunk = getChunkAt(x, z);
-//<<<<<<< HEAD
+                if(chunk->elemCountOpq() > 0) {
+                    //<<<<<<< HEAD
 
-                chunk->setWorldPos(x, z);
-                shaderProgram->setModelMatrix(glm::mat4());
-                shaderProgram->drawInterleaved(*chunk, 0, 0, time);
+                    chunk->setWorldPos(x, z);
+                    shaderProgram->setModelMatrix(glm::mat4());
+                    shaderProgram->drawInterleaved(*chunk, 0, 0, time);
+                }
 
             }
         }
@@ -273,10 +275,11 @@ void Terrain::draw(int minX, int maxX, int minZ, int maxZ, ShaderProgram *shader
         for(int z = minZ; z < maxZ; z += 16) {
             if (hasChunkAt(x, z)) {
                 const uPtr<Chunk> &chunk = getChunkAt(x, z);
-
-                chunk->setWorldPos(x, z);
-                shaderProgram->setModelMatrix(glm::mat4());
-                shaderProgram->drawInterleaved(*chunk, 0, 1, time);
+                if(chunk->elemCountTran() > 0) {
+                    chunk->setWorldPos(x, z);
+                    shaderProgram->setModelMatrix(glm::mat4());
+                    shaderProgram->drawInterleaved(*chunk, 0, 1, time);
+                }
 //=======
 //                if(chunk->elemCount() != -1) {
 //                    shaderProgram->setModelMatrix(glm::mat4());

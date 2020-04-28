@@ -161,7 +161,6 @@ void MyGL::resizeGL(int w, int h) {
 // all per-frame actions here, such as performing physics updates on all
 // entities in the scene.
 void MyGL::tick() {
-    std::cout<<"2"<<std::endl;;
     // Calculate dT
     float dT = (QDateTime::currentMSecsSinceEpoch() - m_currMSecSinceEpoch) / 1000.0f;
     m_currMSecSinceEpoch = QDateTime::currentMSecsSinceEpoch();
@@ -197,10 +196,10 @@ void MyGL::tick() {
 
     //std::cout<<m_terrain.chunksWithOnlyBlockData.size() << std::endl;
 
-    std::cout<<"checkpoint"<<std::endl;
+    //std::cout<<"checkpoint"<<std::endl;
     m_terrain.mutexWithOnlyBlockData.lock();
     for (Chunk *c : m_terrain.chunksWithOnlyBlockData) {
-        std::cout<<"checkpoint"<<std::endl;
+       // std::cout<<"checkpoint"<<std::endl;
         VBOWorker *vboWorker = new VBOWorker(&m_terrain,
                                              &m_terrain.chunksWithVBOData,
                                              c,
@@ -240,7 +239,7 @@ void MyGL::sendPlayerDataToGUI() const {
 // MyGL's constructor links update() to a timer that fires 60 times per second,
 // so paintGL() called at a rate of 60 frames per second.
 void MyGL::paintGL() {
-    std::cout<<"1"<<std::endl;;
+    //std::cout<<"1"<<std::endl;;
     // Clear the screen so that we only see newly drawn images
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
