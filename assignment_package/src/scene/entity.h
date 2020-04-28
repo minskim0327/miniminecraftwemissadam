@@ -5,14 +5,14 @@ struct InputBundle {
     bool wPressed, aPressed, sPressed, dPressed;
     bool ePressed, qPressed;
     bool isFlightMode;
-    bool spacePressed, isOnGround;
+    bool spacePressed, isOnGround, isInWater;
     float mouseX, mouseY;
     float mouseXprev, mouseYprev;
 
     InputBundle()
         : wPressed(false), aPressed(false), sPressed(false),
           dPressed(false), ePressed(false), qPressed(false),
-          isFlightMode(true), spacePressed(false), isOnGround(true),
+          isFlightMode(true), spacePressed(false), isOnGround(true), isInWater(false),
           mouseX(0.f), mouseY(0.f), mouseXprev(0.f), mouseYprev(0.f)
     {}
 };

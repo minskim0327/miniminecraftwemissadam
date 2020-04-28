@@ -9,6 +9,7 @@
 #include "scene/player.h"
 #include "texture.h"
 #include "scene/quad.h"
+#include "npc.h"
 
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
@@ -51,6 +52,8 @@ private:
 
 
     bool isChunksCreated;
+
+    NPC *mp_NPC;
 
 public:
     explicit MyGL(QWidget *parent = nullptr);

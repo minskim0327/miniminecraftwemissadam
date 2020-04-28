@@ -2,6 +2,7 @@
 #include "entity.h"
 #include "camera.h"
 #include "terrain.h"
+#include "QSound"
 
 class Player : public Entity {
 private:
@@ -12,10 +13,15 @@ private:
     void processInputs(InputBundle &inputs);
     void computePhysics(float dT, const Terrain &terrain, InputBundle &inputs);
 
+
+
 public:
     // Readonly public reference to our camera
     // for easy access from MyGL
     const Camera& mcr_camera;
+    QSound* footstep;
+    QSound* jump;
+    QSound* flying;
 
     Player(glm::vec3 pos, const Terrain &terrain);
     virtual ~Player() override;
@@ -36,13 +42,9 @@ public:
                    float *out_dist,
                    glm::ivec3 *out_blockHit);
 
-    bool gridMarchTemp(glm::vec3 rayOrigin, int i,
-                   glm::vec3 rayDirection,
-                   const Terrain &terrain,
-                   float *out_dist,
-                   glm::ivec3 *out_blockHit);
     // check whether the player is at ground
     bool isOnGroundLevel(const Terrain &terrain, InputBundle &input);
+    bool isInWater(const Terrain &terrain, InputBundle &input);
 
     void destroyBlock(Terrain *terrain);
     void createBlock(Terrain *terrain);

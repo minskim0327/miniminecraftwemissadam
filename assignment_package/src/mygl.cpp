@@ -14,10 +14,11 @@ MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
       m_worldAxes(this),
       m_progLambert(this), m_progFlat(this),
-      m_terrain(this), m_player(glm::vec3(48.f, 129.f, 48.f), m_terrain),
+      m_terrain(this), m_player(glm::vec3(48.f, 160.f, 48.f), m_terrain),
       m_currMSecSinceEpoch(QDateTime::currentMSecsSinceEpoch()),
-     m_texture(this),  m_time(0.f), mp_progSky(this), mp_geomQuad(this),
-     isChunksCreated(false)
+     mp_progSky(this), mp_geomQuad(this),
+     isChunksCreated(false),
+     m_texture(this),  m_time(0.f), mp_NPC(new NPC(m_terrain, this))
 {
     // Connect the timer to a function so that when the timer ticks the function is executed
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(tick()));
@@ -26,8 +27,11 @@ MyGL::MyGL(QWidget *parent)
     setFocusPolicy(Qt::ClickFocus);
 
     setMouseTracking(true); // MyGL will track the mouse's movements even if a mouse button is not pressed
-    //setCursor(Qt::BlankCursor); // Make the cursor invisible
-    setCursor(Qt::CrossCursor);
+    setCursor(Qt::BlankCursor); // Make the cursor invisible
+    //setCursor(Qt::CrossCursor);
+
+
+    mp_NPC->generatePosition();
 }
 
 MyGL::~MyGL() {
@@ -38,7 +42,9 @@ MyGL::~MyGL() {
 
 void MyGL::moveMouseToCenter() {
 //    setMouseTracking(false);
-    QCursor::setPos(this->mapToGlobal(QPoint(width() / 2, height() / 2)));
+//    QCursor::setPos(this->mapToGlobal(QPoint(width() / 2, height() / 2)));
+//    QCursor::setPos(this->mapFromGlobal(QPoint(- this->width() * 0.5 + this->pos().x(),
+//                           - this->height() * 0.5 + this->pos().y())));
     //QCursor::setPos(QPoint(width() / 2, height() / 2));
     //std::cout << QCursor::pos().x() << std::endl;
 //    setMouseTracking(true);
@@ -67,7 +73,7 @@ void MyGL::initializeGL()
     glGenVertexArrays(1, &vao);
 
     //Create the instance of the world axes
-    //m_worldAxes.create();
+    m_worldAxes.create();
 
 
     // Create and set up the diffuse shader
@@ -231,6 +237,8 @@ void MyGL::tick() {
     m_terrain.mutexChunksWithVBOData.unlock();
 
     isChunksCreated = true;
+
+    //mp_NPC->tick(dT);
     update(); // Calls paintGL() as part of a larger QOpenGLWidget pipeline
     sendPlayerDataToGUI(); // Updates the info in the secondary window displaying player data
     //    m_terrain.updateScene(m_player.mcr_position, &m_progLambert); //as player moves, send position to create new a chunk (Elaine 1st)
@@ -273,6 +281,10 @@ void MyGL::paintGL() {
     //mp_progSky.draw(mp_geomQuad);
 
     renderTerrain();
+
+//    mp_NPC->destroy();
+//    mp_NPC->create();
+//    m_progLambert.setModelMatrix(glm::mat4());
 
     glDisable(GL_DEPTH_TEST);
     m_progFlat.setModelMatrix(glm::mat4());
@@ -342,6 +354,8 @@ void MyGL::mousePressEvent(QMouseEvent *e) {
 
 void MyGL::keyPressUpdate(QKeyEvent *e) {
     if (m_inputs.isFlightMode) {
+        m_player.flying->setLoops(QSound::Infinite);
+        m_player.flying->play();
         if (e->key() == Qt::Key_W) {
             m_inputs.wPressed = true;
         } else if (e->key() == Qt::Key_S) {
@@ -358,15 +372,28 @@ void MyGL::keyPressUpdate(QKeyEvent *e) {
             m_inputs.isFlightMode = false;
         }
     } else {
+        m_player.flying->stop();
+        if (m_inputs.isInWater) {
+            m_player.footstep->stop();
+            m_player.footstep = new QSound(":/sound/swimming.wav");
+        } else {
+            m_player.footstep->stop();
+            m_player.footstep = new QSound(":/sound/footsteps-grass.wav");
+        }
         if (e->key() == Qt::Key_W) {
+            m_player.footstep->play();
             m_inputs.wPressed = true;
         } else if (e->key() == Qt::Key_S) {
+            m_player.footstep->play();
             m_inputs.sPressed = true;
         } else if (e->key() == Qt::Key_D) {
+            m_player.footstep->play();
             m_inputs.dPressed = true;
         } else if (e->key() == Qt::Key_A) {
+            m_player.footstep->play();
             m_inputs.aPressed = true;
         } else if (e->key() == Qt::Key_Space) {
+            m_player.jump->play();
             m_inputs.spacePressed = true;
         } else if (e->key() == Qt::Key_F) {
             m_inputs.isFlightMode = true;
@@ -375,6 +402,8 @@ void MyGL::keyPressUpdate(QKeyEvent *e) {
 }
 
 void MyGL::keyReleaseUpdate(QKeyEvent *e) {
+    m_player.footstep->stop();
+    m_player.jump->stop();
     if (e->key() == Qt::Key_W) {
         m_inputs.wPressed = false;
     } else if (e->key() == Qt::Key_S) {
