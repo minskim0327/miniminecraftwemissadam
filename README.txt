@@ -48,3 +48,17 @@ rotated them according the the orientation of the branch. I additionally curved 
  
  Min Seok Kim(Multithreading Terrain generation)
  - I implemented multiple (25, to be exact) terrain zone generations using QMutex and QThreadPool Libraries. In MyGL::tick() function, I examined the players current position and checked if there are any terrain zones generated in the radius of 2 terrain zones(64 blocks). First, I created a vector of chunks_with_only_blocktype_data, and a vector of chunkVBO( a struct that contains a chunk's vbo data, such as index and vertex position vectors) inside the terrain class, which is to be locked and unlocked by its corresponding mutexes. Then, for the terrain not yet genearted, I utilized a BlockTypeWorker worker class(implements QRunnable) to run on multi threads, which generates the chunk data only containing its block type data. After chunk data(only containing block data) were gathered, I spawned another threads, this time utilizing VBOworker(implements QRunnable), to create VBO datas for each chunk. After the VBO datas were collected, I then sent these VBO datas into our GPU. The problme emerged in BlockTypeWorker, where it kept throwing exceptions. The exceptions occured when I was trying to create a block. While i was trying to create the block, it kept saying that the chunk (which should hold 16by16 blocks) were not instantiated.
+ 
+<MS3>
+
+Elaine Moon - Day and Night cycle
+Min Seok Kim 
+Chang Hun Lee 
+
+Elaine Moon - Day and Night cycle
+ - I implemented the day and night cycle by creating a procedural sky background using a raycast. I used dusk, midday, and sunset palette to create colors that I want to mix in. Then, I made an illusion of a sky by putting spherical uvs on the quad cube, which has the z value to be at almost near the far clip. Using the palette colors, I made sure that the sky colors blended in naturally depending on the height. I used worley noise and fbm in order to create noise in the sky. After, I created a sun direction vector which is then realized by setting the angle between sundirection and raydirection. I animate the sun by rotating the sun direction vector around xAxis using u_Time which I pass into GPU. As the sun rotates around xAxis, I calculate the dot product of the yAxis and the current sun direction vector to find how far up the sun is at. Using ths dot product value which ranges from -1 to 1, I set conditions so that it has intervals where the sky changes from dusk/night to midday to sunset, and back to dusk/night. I also have intervals in between these three where mixing of dusk and midday or mixing of midday and sunset happens. Depending on which sky interval the sun is at and the angle between rayDir and sunDir, I also make sure that the sun has a glowing effect of corona at the right current sky color. I also make sure that the same light direction is applied to the terrain by passing in the same vector and time interval to the lambert.frag.glsl. The starting sun position vector is (0, 0, -1).
+
+
+
+
+
