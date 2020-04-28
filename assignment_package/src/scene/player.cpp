@@ -182,7 +182,7 @@ bool Player::gridMarch(glm::vec3 rayOrigin, glm::vec3 rayDirection,
         // If the currCell contains something other than empty, return curr_t
         BlockType cellType = terrain.getBlockAt(currCell.x, currCell.y, currCell.z);
 
-        if (cellType != EMPTY) {
+        if (cellType != EMPTY && cellType != WATER) {
             *out_blockHit = currCell;
             *out_dist = glm::min(maxLen, curr_t);
             return true;
@@ -248,7 +248,10 @@ bool Player::isOnGroundLevel(const Terrain &terrain, InputBundle &input) {
         for (int z = 0; z <= 1; z++) {
             if (terrain.getBlockAt(floor(bottomLeftVertex[0]) + x,
                                    floor(bottomLeftVertex[1] - 0.005f),
-                                   floor(bottomLeftVertex[2]) + z) != EMPTY) {
+                                   floor(bottomLeftVertex[2]) + z) != EMPTY &&
+                terrain.getBlockAt(floor(bottomLeftVertex[0]) + x,
+                                   floor(bottomLeftVertex[1] - 0.005f),
+                                   floor(bottomLeftVertex[2]) + z) != WATER) {
 
                 input.isOnGround = true;
 //                m_velocity[1] = 0.f;
