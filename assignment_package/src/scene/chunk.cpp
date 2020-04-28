@@ -148,7 +148,8 @@ void Chunk::createVBO(std::vector<glm::vec4>* posOpq,
                     BlockType t = getBlockAt(x, y, z);
                     if (t == EMPTY) {
                         continue;
-                    } else if (t == GRASS || t == DIRT || t == STONE || t == SNOW || t == LAVA) {
+                    } else if (t == GRASS || t == DIRT || t == STONE || t == SNOW || t == LAVA || t == SAND
+                               || t == EMERALD || t == GOLD || t == SAPPHIRE) {
                         pos = posOpq;
                         nor = norOpq;
                         uv = uvOpq;
@@ -308,6 +309,47 @@ void Chunk::createVBO(std::vector<glm::vec4>* posOpq,
                             anim->push_back(1.f);
                             anim->push_back(1.f);
                             break;
+                        case SAND:
+                            uv->push_back(glm::vec2(0.f/16.f, 4.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 4.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 5.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case EMERALD:
+                            uv->push_back(glm::vec2(2.f/16.f, 12.f/16.f));
+                            uv->push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                            uv->push_back(glm::vec2(3.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(2.f/16.f, 13.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case GOLD:
+                            uv->push_back(glm::vec2(0.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 14.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 14.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case SAPPHIRE:
+                            uv->push_back(glm::vec2(0.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 6.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 6.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+
                         default:
                             uv->push_back(glm::vec2(0.f/16.f, 0.f/16.f));
                             uv->push_back(glm::vec2(1.f/16.f, 0.f/16.f));
@@ -403,6 +445,46 @@ void Chunk::createVBO(std::vector<glm::vec4>* posOpq,
                             anim->push_back(1.f);
                             anim->push_back(1.f);
                             anim->push_back(1.f);
+                            break;
+                        case SAND:
+                            uv->push_back(glm::vec2(0.f/16.f, 4.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 4.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 5.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case EMERALD:
+                            uv->push_back(glm::vec2(2.f/16.f, 12.f/16.f));
+                            uv->push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                            uv->push_back(glm::vec2(3.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(2.f/16.f, 13.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case GOLD:
+                            uv->push_back(glm::vec2(0.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 14.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 14.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case SAPPHIRE:
+                            uv->push_back(glm::vec2(0.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 6.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 6.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
                             break;
                         default:
                             uv->push_back(glm::vec2(0.f/16.f, 0.f/16.f));
@@ -500,6 +582,46 @@ void Chunk::createVBO(std::vector<glm::vec4>* posOpq,
                             anim->push_back(1.f);
                             anim->push_back(1.f);
                             break;
+                        case SAND:
+                            uv->push_back(glm::vec2(0.f/16.f, 4.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 4.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 5.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case EMERALD:
+                            uv->push_back(glm::vec2(2.f/16.f, 12.f/16.f));
+                            uv->push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                            uv->push_back(glm::vec2(3.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(2.f/16.f, 13.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case GOLD:
+                            uv->push_back(glm::vec2(0.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 14.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 14.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case SAPPHIRE:
+                            uv->push_back(glm::vec2(0.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 6.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 6.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
                         default:
                             uv->push_back(glm::vec2(0.f/16.f, 0.f/16.f));
                             uv->push_back(glm::vec2(1.f/16.f, 0.f/16.f));
@@ -595,6 +717,46 @@ void Chunk::createVBO(std::vector<glm::vec4>* posOpq,
                             anim->push_back(1.f);
                             anim->push_back(1.f);
                             anim->push_back(1.f);
+                            break;
+                        case SAND:
+                            uv->push_back(glm::vec2(0.f/16.f, 4.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 4.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 5.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case EMERALD:
+                            uv->push_back(glm::vec2(2.f/16.f, 12.f/16.f));
+                            uv->push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                            uv->push_back(glm::vec2(3.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(2.f/16.f, 13.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case GOLD:
+                            uv->push_back(glm::vec2(0.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 14.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 14.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case SAPPHIRE:
+                            uv->push_back(glm::vec2(0.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 6.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 6.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
                             break;
                         default:
                             uv->push_back(glm::vec2(0.f/16.f, 0.f/16.f));
@@ -692,6 +854,46 @@ void Chunk::createVBO(std::vector<glm::vec4>* posOpq,
                             anim->push_back(1.f);
                             anim->push_back(1.f);
                             break;
+                        case SAND:
+                            uv->push_back(glm::vec2(0.f/16.f, 4.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 4.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 5.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case EMERALD:
+                            uv->push_back(glm::vec2(2.f/16.f, 12.f/16.f));
+                            uv->push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                            uv->push_back(glm::vec2(3.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(2.f/16.f, 13.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case GOLD:
+                            uv->push_back(glm::vec2(0.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 14.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 14.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case SAPPHIRE:
+                            uv->push_back(glm::vec2(0.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 6.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 6.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
                         default:
                             uv->push_back(glm::vec2(0.f/16.f, 0.f/16.f));
                             uv->push_back(glm::vec2(1.f/16.f, 0.f/16.f));
@@ -787,6 +989,46 @@ void Chunk::createVBO(std::vector<glm::vec4>* posOpq,
                             anim->push_back(1.f);
                             anim->push_back(1.f);
                             anim->push_back(1.f);
+                            break;
+                        case SAND:
+                            uv->push_back(glm::vec2(0.f/16.f, 4.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 4.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 5.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case EMERALD:
+                            uv->push_back(glm::vec2(2.f/16.f, 12.f/16.f));
+                            uv->push_back(glm::vec2(3.f/16.f, 12.f/16.f));
+                            uv->push_back(glm::vec2(3.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(2.f/16.f, 13.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case GOLD:
+                            uv->push_back(glm::vec2(0.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 13.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 14.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 14.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            break;
+                        case SAPPHIRE:
+                            uv->push_back(glm::vec2(0.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 5.f/16.f));
+                            uv->push_back(glm::vec2(1.f/16.f, 6.f/16.f));
+                            uv->push_back(glm::vec2(0.f/16.f, 6.f/16.f));
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
+                            anim->push_back(0.f);
                             break;
                         default:
                             uv->push_back(glm::vec2(0.f/16.f, 0.f/16.f));

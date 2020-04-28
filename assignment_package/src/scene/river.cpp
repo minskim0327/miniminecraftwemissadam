@@ -35,9 +35,12 @@ void River::goForward() {
     int riverLength = std::max((int) length * depth, 12);
     float newx, newz;
     int rotatedx, rotatedz;
+    double random = ((double) rand() / (RAND_MAX));
+    if (random > 0.5) random = 1;
+    else random = -1;
     for (int i = 0; i < riverLength; i++) {
         float step = i * 2 * PI / riverLength;
-        float offset = sin(step) * depth;
+        float offset = random * sin(step) * depth;
         newx = currTurtle->posx + offset;
         newz = currTurtle->posz + i;
 

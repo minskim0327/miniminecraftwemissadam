@@ -7,6 +7,7 @@ SOURCES += \
     $$PWD/mainwindow.cpp \
     $$PWD/mygl.cpp \
     $$PWD/scene/quad.cpp \
+    $$PWD/scene/cave.cpp \
     $$PWD/scene/river.cpp \
     $$PWD/scene/turtle.cpp \
     $$PWD/npc.cpp \
@@ -31,6 +32,7 @@ HEADERS += \
     $$PWD/mainwindow.h \
     $$PWD/mygl.h \
     $$PWD/scene/quad.h \
+    $$PWD/scene/cave.h \
     $$PWD/scene/river.h \
     $$PWD/scene/turtle.h \
     $$PWD/npc.h \
