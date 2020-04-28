@@ -52,13 +52,16 @@ rotated them according the the orientation of the branch. I additionally curved 
 <MS3>
 
 Elaine Moon - Day and Night cycle
-Min Seok Kim 
+Min Seok Kim - Sound Effects, NPCs
 Chang Hun Lee 
 
 Elaine Moon - Day and Night cycle
  - I implemented the day and night cycle by creating a procedural sky background using a raycast. I used dusk, midday, and sunset palette to create colors that I want to mix in. Then, I made an illusion of a sky by putting spherical uvs on the quad cube, which has the z value to be at almost near the far clip. Using the palette colors, I made sure that the sky colors blended in naturally depending on the height. I used worley noise and fbm in order to create noise in the sky. After, I created a sun direction vector which is then realized by setting the angle between sundirection and raydirection. I animate the sun by rotating the sun direction vector around xAxis using u_Time which I pass into GPU. As the sun rotates around xAxis, I calculate the dot product of the yAxis and the current sun direction vector to find how far up the sun is at. Using ths dot product value which ranges from -1 to 1, I set conditions so that it has intervals where the sky changes from dusk/night to midday to sunset, and back to dusk/night. I also have intervals in between these three where mixing of dusk and midday or mixing of midday and sunset happens. Depending on which sky interval the sun is at and the angle between rayDir and sunDir, I also make sure that the sun has a glowing effect of corona at the right current sky color. I also make sure that the same light direction is applied to the terrain by passing in the same vector and time interval to the lambert.frag.glsl. The starting sun position vector is (0, 0, -1).
 
 
+Min Seok Kim - Sound Effects, NPCs
+- I first implemented various sound effects, such as flying, swimming, walking on grass, and jumping by utilizing QSound classes. In order to achieve this, I also had to modify the .pro file. To differentiate sound effects between walking on ground and swimming, I created additional function named isInWater(), which updates the "isInWater" filed in the InputBundle .The effects were very cool! When in water, there were only swimming noise, and when hovering, it was like an helicopter sound.
+- I also implmeneted the NPCs. I have created a basic VBO which resembles the shape, same as the person(i.e. two squares, with one on top of the other). Also, I have simulated movement of these NPCs, where the NPC would jump when it collides with a block, or randomly switch its direction when it does not collide. I constantly updated the motion of the NPC by implementing NPC::tick(), which calls updatePhysicsInfo() - updates speed and acceleration - and processPhysicsInfo() - which updates its displacement. However, I could not solve the error where the VBO datas were not being able to sent to the GPU. To solve this, I have created new buffer datas and instantiated them in the Drawable glass, denoted with names containing NPC.
 
 
 
