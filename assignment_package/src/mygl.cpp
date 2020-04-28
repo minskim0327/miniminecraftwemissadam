@@ -270,7 +270,7 @@ void MyGL::paintGL() {
     mp_progSky.useMe();
     this->glUniform3f(mp_progSky.unifEye, m_player.mcr_camera.mcr_position.x, m_player.mcr_camera.mcr_position.y, m_player.mcr_camera.mcr_position.z);
     this->glUniform1f(mp_progSky.unifTime, m_time);
-    mp_progSky.draw(mp_geomQuad);
+    //mp_progSky.draw(mp_geomQuad);
 
     renderTerrain();
 
