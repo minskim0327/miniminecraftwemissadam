@@ -16,7 +16,7 @@ void Player::tick(float dT, InputBundle &input) {
 }
 
 void Player::processInputs(InputBundle &inputs) {
-    float accRate = 20.0f;
+    float accRate = 50.0f;
 
     // the player is in flight mode
     if (inputs.isFlightMode) {

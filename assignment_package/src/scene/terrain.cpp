@@ -337,22 +337,44 @@ void Terrain::CreateTestScene()
 void Terrain::fillBlock(int x, int z) {
     int mheight = getMountainHeight(x, z);
     int gheight = getGrasslandHeight(x, z);
+    int sheight = getSandHeight(x, z);
     float t = perlinNoise(glm::vec2(x / 256.f, z / 256.f));
     float remapped = remap(t, -1, 1, 0, 1);
-
     remapped = glm::smoothstep(0.4, 0.6, (double) remapped);
-
     int lerp = int((1 - remapped) * gheight + remapped * mheight);
 
-    if (remapped < 0.5) {
-        for (int y = 0; y < lerp; ++y) {
-            if (y == lerp - 1) {
-                setBlockAt(x, y, z, GRASS);
-            } else if (y <= 128) {
-                setBlockAt(x, y, z, STONE);
-            } else {
-                setBlockAt(x, y, z, DIRT);
+    float t2 = perlinNoise(glm::vec2(x / 200.f, z / 200.f));
+    float remapped2 = remap(t2, -1, 1, 0, 1);
+    remapped2 = glm::smoothstep(0.15, 0.75, (double) remapped2);
+    int lerp2 = int((1 - remapped2) * lerp + remapped2 * sheight);
+    lerp = max(132, lerp);
+    lerp2 = max(132, lerp2);
+
+    if (remapped < 0.7) {
+        if (remapped2 > 0.4) {
+             for (int y = 0; y < lerp; ++y) {
+                if (y == lerp - 1) {
+                    setBlockAt(x, y, z, GRASS);
+                } else if (y <= 128) {
+                    setBlockAt(x, y, z, STONE);
+                } else {
+                    setBlockAt(x, y, z, DIRT);
+                }
             }
+        } else {
+            if (remapped2 < 0.35) {
+                lerp2 = remap(lerp2, 128, 255, 128, 200);
+            }
+            lerp2 = max(lerp2, 132);
+            for (int y = 0; y < lerp2; ++y) {
+               if (y == lerp2 - 1) {
+                   setBlockAt(x, y, z, SAND);
+               } else if (y <= 128) {
+                   setBlockAt(x, y, z, STONE);
+               } else {
+                   setBlockAt(x, y, z, SAND);
+               }
+           }
         }
     } else { // mountain
         for (int y = 0; y < lerp; ++y) {
@@ -419,6 +441,11 @@ int Terrain::getMountainHeight(int x, int z) {
     int height = perlin * (127) + 129;
     return height;
 
+}
+
+int Terrain::getSandHeight(int x, int z) {
+    float worley = worleyNoise(glm::vec2(x / 64.f, z / 64.f));
+    return 129 + (worley) * 5;
 }
 
 float Terrain::worleyNoise(glm::vec2 uv) {

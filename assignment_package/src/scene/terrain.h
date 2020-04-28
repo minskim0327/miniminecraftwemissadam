@@ -9,7 +9,9 @@
 #include "cube.h"
 #include "river.h"
 #include "QMutex"
+#include "cave.h"
 class River;
+class Cave;
 
 //using namespace std;
 using namespace std;
@@ -122,6 +124,7 @@ public:
     //chang
     int getGrasslandHeight(int x, int z);
     int getMountainHeight(int x, int z);
+    int getSandHeight(int x, int z);
     float perlinNoise(glm::vec2 uv);
     float surflet(glm::vec2 p, glm::vec2 gridPoint);
     float worleyNoise(glm::vec2 uv);
