@@ -28,14 +28,15 @@ const vec3 dusk[5] = vec3[](vec3(144, 96, 144) / 255.0,
                             vec3(48, 24, 96) / 255.0,
                             vec3(0, 24, 72) / 255.0);
 
-const vec3 midday[5] = vec3[](vec3(0, 24, 72) / 255.0,
-                               vec3(51, 255, 255) / 255.0,
-                               vec3(99, 184, 215) / 255.0,
-                                vec3(49, 71,144) / 255.0,
+//midday palette
+const vec3 midday[5] = vec3[](vec3(208, 221, 246) / 255.0,
+                               vec3(51, 181, 255) / 255.0,
+                               vec3(1, 163, 255) / 255.0,
+                                vec3(8, 97,148) / 255.0,
                                 vec3(44, 49, 65) / 255.0);
 
+//full sun color
 const vec3 sunColor = vec3(255, 255, 190) / 255.0;
-//const vec3 middayColor = vec3(0, 0, 1);
 const vec3 cloudColor = sunset[3];
 
 vec2 sphereToUV(vec3 p) {
@@ -47,6 +48,7 @@ vec2 sphereToUV(vec3 p) {
     return vec2(1 - phi / TWO_PI, 1 - theta / PI);
 }
 
+//divided into intervals, it gives the right color mix depending on the uv.y
 vec3 uvToSunset(vec2 uv) {
     if(uv.y < 0.5) {
         return sunset[0];
@@ -66,6 +68,7 @@ vec3 uvToSunset(vec2 uv) {
     return sunset[4];
 }
 
+//divided into intervals, it gives the right color mix depending on the uv.y
 vec3 uvToDusk(vec2 uv) {
     if(uv.y < 0.5) {
         return dusk[0];
@@ -85,6 +88,7 @@ vec3 uvToDusk(vec2 uv) {
     return dusk[4];
 }
 
+//divided into intervals, it gives the right color mix depending on the uv.y
 vec3 uvToMidday(vec2 uv) {
     if(uv.y < 0.5) {
         return midday[0];
@@ -211,18 +215,11 @@ void main()
 
     vec3 rayDir = normalize(p.xyz - u_Eye);
 
-#ifdef RAY_AS_COLOR
-    outColor = vec4(0.5 * (rayDir + vec3(1,1,1)), 1.0);
-    return;
-#endif
-
+    //make an illusion that the quad is spherical shape
     vec2 uv = sphereToUV(rayDir);
-#ifdef SPHERE_UV_AS_COLOR
-    outColor = vec4(uv, 0, 1);
-    return;
-#endif
 
 
+    //make offset for noise in the sky
     vec2 offset = vec2(0.0);
 #ifdef WORLEY_OFFSET
     // Get a noise value in the range [-1, 1]
@@ -237,108 +234,87 @@ void main()
     vec3 duskColor = uvToDusk(uv + offset * 0.1);
     vec3 middayColor = uvToMidday(uv + offset * 0.1);
 
-    //outColor = sunsetColor;
-
-
-    // Add a glowing sun in the sky
-    vec3 sunDir = rotateX(normalize(vec3(0, 0.1, 1.0)), u_Time *0.01);
     vec3 xAxis = vec3(1, 0, 0);
     vec3 yAxis = vec3(0, 1, 0);
-    bool isAboveTerrain = dot(yAxis, sunDir) > 0;
-    float angleBetweenXAxisAndSun = acos(dot(xAxis, sunDir)) * 360.0 / PI;
+    vec3 zAxis = vec3(0, 0, 1);
 
-    bool isSunset = angleBetweenXAxisAndSun < 30;
-    bool isMidDay = angleBetweenXAxisAndSun > 30 || angleBetweenXAxisAndSun < 100;
-    bool isSunrise= angleBetweenXAxisAndSun > 100;
+    // Add a glowing sun in the sky
+    vec3 sunDir = normalize(rotateX(normalize(vec3(0, 0, -1.0)), u_Time *0.01));
 
-    float sunSize = 10.0;
-    float angle = acos(dot(rayDir, sunDir)) * 360.0 / PI;
+    float sunSize = 30.0;
+    float angle = (acos(dot(rayDir, sunDir)) * 360.0 / PI);
 
-        float raySunDot = dot(rayDir, sunDir);
-#define SUNSET_THRESHOLD 0.75
-#define SUNSET_BETWEEN_MIDDAY 0.6
-#define MIDDAY_THRESHOLD 0.4
-#define DUSK_BETWEEN_MIDDAY 0.2
-#define DUSK_THRESHOLD -0.1
-        if(raySunDot > SUNSET_THRESHOLD) {
-            if(angle < sunSize) {
-                // Full center of sun
-                if(angle < 7.5) {
-                    outColor = vec4(sunColor, 1);
-                }
-                // Corona of sun, mix with sky color
-                else {
-                    outColor = vec4(mix(sunColor, sunsetColor, (angle - 7.5) / 22.5), 1);
-                }
-            } else {
-                outColor = vec4(sunsetColor, 1);
+    //find the dot product between sundirection and yaxis
+    float floorAngle = dot(sunDir, yAxis);
+
+    //compare the dot product to create color change depending on how far up (y) the sun is
+    float floorSunDot  = floorAngle;
+
+#define SUNSET_THRESHOLD 0.0
+//#define SUNSET_BETWEEN_MIDDAY 0.6
+#define MIDDAY_THRESHOLD 0.5
+//#define DUSK_BETWEEN_MIDDAY 0.2
+#define DUSK_THRESHOLD -0.5
+
+
+    //blue sky midday
+    if (floorSunDot > MIDDAY_THRESHOLD) {
+        if(angle < sunSize) {
+            // Full center of sun
+            if(angle < 7.5) {
+                outColor = vec4(sunColor, 1);
             }
-        }
-        else if (raySunDot > SUNSET_BETWEEN_MIDDAY) {
-            if(angle < sunSize) {
-                // Full center of sun
-                if(angle < 7.5) {
-                    outColor = vec4(sunColor, 1);
-                }
-                // Corona of sun, mix with sky color
-                else {
-                    outColor = vec4(mix(sunColor, sunsetColor, (angle - 7.5) / 22.5), 1);
-                }
-            } else {
-                float t = (raySunDot - SUNSET_THRESHOLD) / (MIDDAY_THRESHOLD - SUNSET_THRESHOLD);
-                outColor = vec4(mix(sunsetColor, middayColor, t), 1);
+            // Corona of sun, mix with the current sky color
+            else {
+                outColor = vec4(mix(sunColor, middayColor, (angle - 7.5) / 22.5), 1);
             }
+            //if not within sun angle, we set the color to midday
 
+        } else {
+            outColor = vec4(middayColor, 1);
         }
-        else if (raySunDot > MIDDAY_THRESHOLD) {
-            if(angle < sunSize) {
-                // Full center of sun
-                if(angle < 7.5) {
-                    outColor = vec4(sunColor, 1);
-                }
-                // Corona of sun, mix with sky color
-                else {
-                    outColor = vec4(mix(sunColor, middayColor, (angle - 7.5) / 22.5), 1);
-                }
-            } else {
-                outColor = vec4(middayColor, 1);
+
+        //between sunset and midday
+    } else if (floorSunDot > SUNSET_THRESHOLD) {
+        if(angle < sunSize) {
+            // Full center of sun
+            if(angle < 7.5) {
+                outColor = vec4(sunColor, 1);
             }
-        }
-        else if (raySunDot > DUSK_BETWEEN_MIDDAY) {
-            if(angle < sunSize) {
-                // Full center of sun
-                if(angle < 7.5) {
-                    outColor = vec4(sunColor, 1);
-                }
-                // Corona of sun, mix with sky color
-                else {
-                    outColor = vec4(mix(sunColor, duskColor, (angle - 7.5) / 22.5), 1);
-                }
-            } else {
-                float t = (raySunDot - MIDDAY_THRESHOLD) / (DUSK_THRESHOLD - MIDDAY_THRESHOLD);
-                outColor = vec4(mix(middayColor, duskColor, t), 1);
+            // Corona of sun, mix with the current sky color
+            else {
+                float t = (floorSunDot - SUNSET_THRESHOLD) / (MIDDAY_THRESHOLD - SUNSET_THRESHOLD);
+                outColor = vec4(mix(sunColor, mix(sunsetColor, middayColor, t), (angle - 7.5) / 22.5), 1);
             }
+            //if not within sun angle, we set the color to midday & sunset
+        } else {
+            float t = (floorSunDot - SUNSET_THRESHOLD) / (MIDDAY_THRESHOLD - SUNSET_THRESHOLD);
+            outColor = vec4(mix(sunsetColor, middayColor, t), 1);
         }
-        // Any dot product between 0.75 and -0.1 is a LERP b/t sunset and dusk color
-//        else if(raySunDot > DUSK_THRESHOLD) {
-//            if(angle < sunSize) {
-//                // Full center of sun
-//                if(angle < 7.5) {
-//                    outColor = vec4(sunColor, 1);
-//                }
-//                // Corona of sun, mix with sky color
-//                else {
-//                    outColor = vec4(mix(sunColor, sunsetColor, (angle - 7.5) / 22.5), 1);
-//                }
-//            }
-//            float t = (raySunDot - SUNSET_THRESHOLD) / (DUSK_THRESHOLD - SUNSET_THRESHOLD);
-//            outColor = vec4(mix(sunsetColor, duskColor, t), 1);
-//        }
 
-        // Any dot product <= -0.1 are pure dusk color
-        else {
-            outColor = vec4(duskColor, 1);
+        //between dusk and sunset
+    } else if (floorSunDot > DUSK_THRESHOLD) {
+        if(angle < sunSize) {
+            // Full center of sun
+            if(angle < 7.5) {
+                outColor = vec4(sunColor, 1);
+            }
+            // Corona of sun, mix with the current sky color
+            else {
+                float t = (floorSunDot - SUNSET_THRESHOLD) / (DUSK_THRESHOLD - SUNSET_THRESHOLD);
+                outColor = vec4(mix(sunColor, mix(sunsetColor, duskColor, t), (angle - 7.5) / 22.5), 1);
+            }
+            //if not within sun angle, we set the color to sunset & dusk
+        } else {
+            float t = (floorSunDot - SUNSET_THRESHOLD) / (DUSK_THRESHOLD - SUNSET_THRESHOLD);
+            outColor = vec4(mix(sunsetColor, duskColor, t), 1);
         }
- //   }
 
+        //full night/dusk
+    } else {
+        //no sun exists when complete night/dusk
+        float t = (floorSunDot - SUNSET_THRESHOLD) / (DUSK_THRESHOLD - SUNSET_THRESHOLD);
+        outColor = vec4(mix(sunsetColor, duskColor, t), 1);
+ //       outColor = vec4(duskColor, 1);
+    }
 }
