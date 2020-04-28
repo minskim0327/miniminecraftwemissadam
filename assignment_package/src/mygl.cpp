@@ -39,6 +39,8 @@ MyGL::~MyGL() {
 void MyGL::moveMouseToCenter() {
 //    setMouseTracking(false);
     QCursor::setPos(this->mapToGlobal(QPoint(width() / 2, height() / 2)));
+//    QCursor::setPos(this->mapToGlobal(QPoint(-this->width() * 0.5 + this->pos().x(),
+//                                             -this->height() * 0.5 + this->pos().y())));
     //QCursor::setPos(QPoint(width() / 2, height() / 2));
     //std::cout << QCursor::pos().x() << std::endl;
 //    setMouseTracking(true);
@@ -90,52 +92,6 @@ void MyGL::initializeGL()
     m_texture.load(0);
 
 
-//    std::vector<int64_t> terrainNotExpanded = m_terrain.checkExpansion(m_player.getPosition());
-
-//    // expected :: 24
-//    //std::cout << terrainNotExpanded.size() << std::endl;
-
-//    // Spawn worker threads to populate BlockType data in new Chunks
-//    std::vector<std::vector<Chunk*>> terrainsChunk;
-//    for (unsigned int i = 0; i < terrainNotExpanded.size(); i++) {
-//        std::vector<Chunk*> localChunks;
-//        for (int x = 0; x < 4; x++) {
-//            for (int z = 0; z < 4; z++) {
-//                glm:: ivec2 tz_coords = toCoords(terrainNotExpanded.at(i));
-//                Chunk* c = m_terrain.createChunkAt(tz_coords.x + 16 * x, tz_coords.y + 16 * z);
-//                localChunks.push_back(c);
-//            }
-//        }
-//        terrainsChunk.push_back(localChunks);
-//    }
-
-//    for (unsigned int i = 0; i < terrainNotExpanded.size(); i++) {
-//        BlockTypeWorker *bWorker = new BlockTypeWorker(&m_terrain, terrainNotExpanded.at(i), terrainsChunk[i], &m_terrain.chunksWithOnlyBlockData, &m_terrain.mutexWithOnlyBlockData);
-//        QThreadPool::globalInstance()->start(bWorker);
-//    }
-
-//    //std::cout<<m_terrain.chunksWithOnlyBlockData.size() << std::endl;
-
-//    std::cout<<"checkpoint"<<std::endl;
-//    m_terrain.mutexWithOnlyBlockData.lock();
-//    for (Chunk *c : m_terrain.chunksWithOnlyBlockData) {
-//        std::cout<<"checkpoint"<<std::endl;
-//        VBOWorker *vboWorker = new VBOWorker(&m_terrain,
-//                                             &m_terrain.chunksWithVBOData,
-//                                             c,
-//                                             &m_terrain.mutexChunksWithVBOData);
-//        QThreadPool::globalInstance()->start(vboWorker);
-//    }
-//    m_terrain.chunksWithOnlyBlockData.clear();
-//    m_terrain.mutexWithOnlyBlockData.unlock();
-
-//    m_terrain.mutexChunksWithVBOData.lock();
-//    for (ChunkVBOData c: m_terrain.chunksWithVBOData) {
-//        c.associated_chunk->sendToGPU(&c.vertex_opq_data, &c.idx_opq_data,
-//                                      &c.vertex_tran_data, &c.idx_tran_data);
-//    }
-//    m_terrain.chunksWithVBOData.clear();
-//    m_terrain.mutexChunksWithVBOData.unlock();
     //m_terrain.CreateTestScene();
     //m_terrain.updateScene(m_player.mcr_position);
 }
@@ -302,16 +258,16 @@ void MyGL::keyReleaseEvent(QKeyEvent *e) {
 
 void MyGL::mouseMoveEvent(QMouseEvent *e) {
     // For windows
-    float dx = e->pos().x() - this->width()/2;
-    float dy = e->pos().y() - this->height()/2;
-    m_player.rotateOnUpGlobal(-dx * 360 * 0.0005f);
-    m_player.rotateOnRightLocal(-dy * 360 * 0.0005f);
+//    float dx = e->pos().x() - this->width()/2;
+//    float dy = e->pos().y() - this->height()/2;
+//    m_player.rotateOnUpGlobal(-dx * 360 * 0.0005f);
+//    m_player.rotateOnRightLocal(-dy * 360 * 0.0005f);
 
     // For mac
-//    float dx = (e->pos().x() - this->width() * 0.5 + this->pos().x()) / (float) width();
-//    float dy = (e->pos().y() - this->height() * 0.5 + this->pos().y()) / (float) height();
-//    m_player.rotateOnUpGlobal(-dx * 360 * 0.005f);
-//    m_player.rotateOnRightLocal(-dy * 360 * 0.005f);
+    float dx = (e->pos().x() - this->width() * 0.5 + this->pos().x()) / (float) width();
+    float dy = (e->pos().y() - this->height() * 0.5 + this->pos().y()) / (float) height();
+    m_player.rotateOnUpGlobal(-dx * 360 * 0.005f);
+    m_player.rotateOnRightLocal(-dy * 360 * 0.005f);
 
 
     moveMouseToCenter();

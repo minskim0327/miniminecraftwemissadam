@@ -118,7 +118,7 @@ void Player::detectCollision(glm::vec3 *rayDirection, const Terrain &terrain) {
 
                 }
                 if (gridMarch(rayOrigin, *rayDirection, terrain, &out_dist, &out_blockHit)) {
-                    std::cout << "collision!" << std::endl;
+//                    std::cout << "collision!" << std::endl;
                     //*rayDirection = (out_dist - 0.005f) * glm::normalize(*rayDirection);
                     float distance = glm::min(out_dist - 0.005f, glm::abs(glm::length(this->m_position - glm::vec3(out_blockHit))));
                     *rayDirection = distance * glm::normalize(*rayDirection);
@@ -192,7 +192,7 @@ bool Player::isOnGroundLevel(const Terrain &terrain, InputBundle &input) {
                                    floor(bottomLeftVertex[2]) + z) != EMPTY) {
 
                 input.isOnGround = true;
-                m_velocity[1] = 0.f;
+//                m_velocity[1] = 0.f;
                 return true;
             }
         }
