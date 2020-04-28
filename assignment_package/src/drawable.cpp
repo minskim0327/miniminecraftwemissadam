@@ -2,9 +2,11 @@
 #include <glm_includes.h>
 
 Drawable::Drawable(OpenGLContext* context)
-    : m_count(-1), m_bufIdx(), m_bufPos(), m_bufNor(), m_bufCol(), m_bufAllOpaque(), m_bufAllTransparent(),
-      m_bufIdxOpq(), m_bufIdxTran(), m_idxGenerated(), m_posGenerated(), m_norGenerated(), m_colGenerated(),
-      m_idxOpqGenerated(false), m_idxTranGenerated(false), m_count_opq(-1), m_count_tran(-1),
+    : m_count(-1), m_count_opq(-1), m_count_tran(-1), m_count_npc_opq(-1),
+      m_bufIdx(), m_bufPos(), m_bufNor(), m_bufCol(), m_bufAllOpaque(), m_bufAllTransparent(),
+      m_bufIdxOpq(), m_bufIdxTran(),m_bufNPCIdxOpq(), m_bufNPCAllOpq(), m_npcIdxOpqGenerated(false), m_npcAllOpqGenerated(false),
+      m_idxGenerated(), m_posGenerated(), m_norGenerated(), m_colGenerated(),
+      m_idxOpqGenerated(false), m_idxTranGenerated(false),
       m_allOpaqueGenerated(false), m_allTransparentGenerated(false),
       mp_context(context)
 {}
@@ -19,9 +21,14 @@ void Drawable::destroy()
     mp_context->glDeleteBuffers(1, &m_bufAllTransparent);
     mp_context->glDeleteBuffers(1, &m_bufIdxOpq);
     mp_context->glDeleteBuffers(1, &m_bufIdxTran);
+    mp_context->glDeleteBuffers(1, &m_bufNPCIdxOpq);
+    mp_context->glDeleteBuffers(1, &m_bufNPCAllOpq);
     m_allOpaqueGenerated = m_allTransparentGenerated = m_idxOpqGenerated = m_idxTranGenerated = false;
+    m_npcAllOpqGenerated = m_npcIdxOpqGenerated = false;
+
     m_count_tran = -1;
     m_count_opq = -1;
+    m_count_npc_opq = -1;
 }
 
 GLenum Drawable::drawMode()
@@ -50,6 +57,9 @@ int Drawable::elemCountTran()
     return m_count_tran;
 }
 
+int Drawable::elemCountNPCOpq() {
+    return m_count_npc_opq;
+}
 
 void Drawable::generatePos()
 {
@@ -106,6 +116,16 @@ void Drawable::generatedAllTransparent() {
     m_allTransparentGenerated = true;
 }
 
+// MIN MS3
+void Drawable::generateNPCIdxOpq() {
+    mp_context->glGenBuffers(1, &m_bufNPCIdxOpq);
+    m_npcIdxOpqGenerated = true;
+}
+
+void Drawable::generateNPCAllOpq() {
+    mp_context->glGenBuffers(1, &m_bufNPCAllOpq);
+    m_npcAllOpqGenerated = true;
+}
 
 bool Drawable::bindPos()
 {
@@ -168,6 +188,20 @@ bool Drawable::bindAllTransparent() {
         mp_context->glBindBuffer(GL_ARRAY_BUFFER, m_bufAllTransparent);
     }
     return m_allTransparentGenerated;
+}
+
+bool Drawable::bindNPCIdxOpq() {
+    if(m_npcIdxOpqGenerated) {
+            mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufNPCIdxOpq);
+        }
+    return m_npcIdxOpqGenerated;
+}
+
+bool Drawable::bindNPCAllOpq() {
+    if(m_npcAllOpqGenerated) {
+            mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bufNPCAllOpq);
+        }
+    return m_npcAllOpqGenerated;
 }
 
 

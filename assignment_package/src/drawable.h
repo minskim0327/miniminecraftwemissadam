@@ -10,6 +10,7 @@ protected:
     int m_count;
     int m_count_opq;     // The number of indices stored in bufIdx opaque.
     int m_count_tran; //The number of indices stored in bufIdx opaque.
+    int m_count_npc_opq;
 
     GLuint m_bufIdx; // A Vertex Buffer Object that we will use to store triangle indices (GLuints)
     GLuint m_bufPos; // A Vertex Buffer Object that we will use to store mesh vertices (vec4s)
@@ -25,6 +26,13 @@ protected:
       //for interleaved data separated buffer for idx transparent and opaque
     GLuint m_bufIdxOpq;
     GLuint m_bufIdxTran;
+
+    // for NPC
+    GLuint m_bufNPCIdxOpq;
+    GLuint m_bufNPCAllOpq;
+    bool m_npcIdxOpqGenerated;
+    bool m_npcAllOpqGenerated;
+
 
     //not used for terrain
     bool m_idxGenerated; // Set to TRUE by generateIdx(), returned by bindIdx().
@@ -56,6 +64,7 @@ public:
     int elemCount();
     int elemCountOpq();
     int elemCountTran();
+    int elemCountNPCOpq();
 
      //not used for terrain
     // Call these functions when you want to call glGenBuffers on the buffers stored in the Drawable
@@ -72,6 +81,12 @@ public:
     //for interleaved data separated for transparent and opaque blocsk
     void generateAllOpaque();
     void generatedAllTransparent();
+
+    // for npc
+    void generateNPCIdxOpq();
+    void generateNPCAllOpq();
+    bool bindNPCIdxOpq();
+    bool bindNPCAllOpq();
 
      //not used for terrain
     bool bindIdx();

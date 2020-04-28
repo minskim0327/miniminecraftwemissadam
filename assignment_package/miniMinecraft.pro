@@ -1,9 +1,10 @@
 QT += core widgets
-
+QT += multimedia
 TARGET = MiniMinecraft
 TEMPLATE = app
 CONFIG += console
 CONFIG += c++1z
+
 win32 {
     LIBS += -lopengl32
 #    LIBS += -lglut32
@@ -21,6 +22,7 @@ FORMS += forms/mainwindow.ui \
     forms/playerinfo.ui
 
 RESOURCES += glsl.qrc \
+    Sound.qrc \
     texture.qrc
 
 *-clang*|*-g++* {

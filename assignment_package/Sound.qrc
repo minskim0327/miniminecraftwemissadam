@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/sound">
+        <file>jump.wav</file>
+        <file>footsteps-grass.wav</file>
+        <file>flightmode.wav</file>
+    </qresource>
+</RCC>

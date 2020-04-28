@@ -8,6 +8,7 @@
 #include "scene/terrain.h"
 #include "scene/player.h"
 #include "texture.h"
+#include "npc.h"
 
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
@@ -44,6 +45,8 @@ private:
     int m_time;
 
     bool isChunksCreated;
+
+    NPC *mp_NPC;
 
 public:
     explicit MyGL(QWidget *parent = nullptr);
