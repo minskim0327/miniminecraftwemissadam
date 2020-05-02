@@ -4,7 +4,7 @@
 Drawable::Drawable(OpenGLContext* context)
     : m_count(-1), m_count_opq(-1), m_count_tran(-1), m_count_npc_opq(-1),
       m_bufIdx(), m_bufPos(), m_bufNor(), m_bufCol(), m_bufAllOpaque(), m_bufAllTransparent(),
-      m_bufIdxOpq(), m_bufIdxTran(),m_bufNPCIdxOpq(), m_bufNPCAllOpq(), m_npcIdxOpqGenerated(false), m_npcAllOpqGenerated(false),
+      m_bufIdxOpq(), m_bufIdxTran(), m_bufNPCIdxOpq(), m_bufNPCAllOpq(), m_npcIdxOpqGenerated(false), m_npcAllOpqGenerated(false),
       m_idxGenerated(), m_posGenerated(), m_norGenerated(), m_colGenerated(),
       m_idxOpqGenerated(false), m_idxTranGenerated(false),
       m_allOpaqueGenerated(false), m_allTransparentGenerated(false),
