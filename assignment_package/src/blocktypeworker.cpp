@@ -39,11 +39,11 @@ void BlockTypeWorker::createChunksInTerrain() {
      double random = ((double) rand() / (RAND_MAX));
      if (random < 0.15)
         river.draw();
-//     double random2 = ((double) rand() / (RAND_MAX));
-//     if (random2 < 0.15)
-//     {
-//        cave.carveOpening();
-//     }
+     double random2 = ((double) rand() / (RAND_MAX));
+     if (random2 < 0.15)
+     {
+        cave.carveOpening();
+     }
 
     mp_mutex->lock();
 
